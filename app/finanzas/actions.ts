@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { tbl, supabase } from "@/lib/supabase";
 import { requireAuth } from "@/lib/dal";
+import { anthropic } from "@/lib/anthropic";
 import type { Debt } from "@/lib/db-types";
 
 function fail(msg: string): never { throw new Error(msg); }
@@ -13,6 +14,7 @@ const TxSchema = z.object({
   category: z.string().min(1),
   kind: z.enum(["income", "expense"]),
   note: z.string().optional(),
+  receipt_url: z.string().optional(),
 });
 
 export async function addTransaction(formData: FormData): Promise<void> {
@@ -27,10 +29,110 @@ export async function addTransaction(formData: FormData): Promise<void> {
     category: data.category,
     kind: data.kind,
     note: data.note ?? null,
+    receipt_url: data.receipt_url || null,
   });
   if (error) fail(error.message);
   revalidatePath("/finanzas");
   revalidatePath("/finanzas/movimientos");
+}
+
+// --- Lectura de recibos con IA (Claude Haiku visión) ---
+
+const CATEGORIES_EXPENSE = ["vivienda", "comida", "transporte", "ocio", "suscripcion", "salud", "deuda", "inversion", "otro"];
+const CATEGORIES_INCOME = ["nomina", "extra", "freelance", "otro"];
+
+const EXTRACTION_SCHEMA = {
+  type: "object",
+  properties: {
+    detected: { type: "boolean", description: "true si la imagen es un recibo, ticket o captura de un movimiento de dinero" },
+    kind: { type: "string", enum: ["income", "expense"], description: "income si es un ingreso/cobro, expense si es un gasto/pago" },
+    amount: { type: "number", description: "Importe total en euros, siempre positivo. Usa el TOTAL del ticket." },
+    occurred_on: { type: "string", description: "Fecha del movimiento en formato YYYY-MM-DD. Si no se ve, cadena vacía." },
+    category: { type: "string", enum: [...CATEGORIES_EXPENSE, ...CATEGORIES_INCOME], description: "Categoría más probable" },
+    merchant: { type: "string", description: "Nombre del comercio o concepto, breve. Cadena vacía si no se ve." },
+  },
+  required: ["detected", "kind", "amount", "occurred_on", "category", "merchant"],
+  additionalProperties: false,
+} as const;
+
+export type ReceiptExtraction = {
+  ok: boolean;
+  error?: string;
+  receipt_url?: string;
+  data?: {
+    detected: boolean;
+    kind: "income" | "expense";
+    amount: number;
+    occurred_on: string;
+    category: string;
+    merchant: string;
+  };
+};
+
+export async function analyzeReceipt(formData: FormData): Promise<ReceiptExtraction> {
+  await requireAuth();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "No se recibió ninguna imagen." };
+  if (file.size > 8 * 1024 * 1024) return { ok: false, error: "La imagen es demasiado grande (máx. 8 MB)." };
+
+  const mime = file.type || "image/jpeg";
+  const supported = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const mediaType = (supported.includes(mime) ? mime : "image/jpeg") as "image/jpeg" | "image/png" | "image/webp" | "image/gif";
+
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const base64 = bytes.toString("base64");
+
+  // 1) Subir la imagen a Storage (privado)
+  const ext = mediaType.split("/")[1].replace("jpeg", "jpg");
+  const path = `${new Date().toISOString().slice(0, 7)}/${crypto.randomUUID()}.${ext}`;
+  const { error: upErr } = await supabase().storage.from("receipts").upload(path, bytes, {
+    contentType: mediaType,
+    upsert: false,
+  });
+  if (upErr) return { ok: false, error: "No se pudo guardar la imagen: " + upErr.message };
+
+  // 2) Extraer datos con Claude Haiku (visión + salida estructurada)
+  try {
+    const msg = await anthropic().messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 1024,
+      output_config: { format: { type: "json_schema", schema: EXTRACTION_SCHEMA } },
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+            {
+              type: "text",
+              text:
+                "Eres un asistente de finanzas personales en España. Analiza esta imagen de un recibo, ticket o captura de un movimiento de tarjeta/banco y extrae los datos del movimiento. El importe en euros, siempre positivo (usa el TOTAL). Determina si es un gasto (expense) o un ingreso (income). La fecha en formato YYYY-MM-DD. Elige la categoría más adecuada. Si la imagen no es un movimiento de dinero, marca detected=false.",
+            },
+          ],
+        },
+      ],
+    });
+
+    // Con output_config.format, el texto del primer bloque es JSON validado contra el esquema
+    const textBlock = msg.content.find((b) => b.type === "text");
+    const raw = textBlock && textBlock.type === "text" ? textBlock.text : "{}";
+    const data = JSON.parse(raw) as NonNullable<ReceiptExtraction["data"]>;
+
+    if (!data.detected) {
+      // Borramos la imagen subida porque no sirve
+      await supabase().storage.from("receipts").remove([path]);
+      return { ok: false, error: "No he reconocido un recibo o movimiento en la imagen. Métela a mano." };
+    }
+
+    return { ok: true, receipt_url: path, data };
+  } catch (e) {
+    return { ok: true, receipt_url: path, error: "Imagen guardada, pero no pude leerla automáticamente: " + (e instanceof Error ? e.message : "error") };
+  }
+}
+
+export async function receiptSignedUrl(path: string): Promise<string | null> {
+  await requireAuth();
+  const { data } = await supabase().storage.from("receipts").createSignedUrl(path, 60 * 30);
+  return data?.signedUrl ?? null;
 }
 
 export async function deleteTransaction(id: string): Promise<void> {

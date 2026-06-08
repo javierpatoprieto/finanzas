@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/dal";
 import { supabase, selectMany } from "@/lib/supabase";
 import type { Transaction } from "@/lib/db-types";
 import { addTransaction } from "../actions";
+import { ReceiptCapture } from "./ReceiptCapture";
 import styles from "../finanzas.module.css";
 
 const eur = (n: number) =>
@@ -19,13 +20,28 @@ export default async function MovimientosPage() {
     supabase().from("transactions").select("*").order("occurred_on", { ascending: false }).limit(100)
   );
 
+  // Enlaces firmados para los recibos (válidos 30 min)
+  const receiptPaths = txs.map((t) => t.receipt_url).filter((p): p is string => !!p);
+  const signedUrls = new Map<string, string>();
+  if (receiptPaths.length > 0) {
+    const { data: signed } = await supabase().storage.from("receipts").createSignedUrls(receiptPaths, 60 * 30);
+    for (const s of signed ?? []) {
+      if (s.signedUrl && s.path) signedUrls.set(s.path, s.signedUrl);
+    }
+  }
+
   return (
     <>
       <h1 className={styles.h1}>Movimientos</h1>
       <p className={styles.lede}>Registra ingresos y gastos. Los gastos van con signo negativo automáticamente.</p>
 
       <div className={styles.card}>
-        <h2 className={styles.cardTitle}>Añadir movimiento</h2>
+        <h2 className={styles.cardTitle}>Añadir con foto (IA)</h2>
+        <ReceiptCapture />
+      </div>
+
+      <div className={styles.card}>
+        <h2 className={styles.cardTitle}>Añadir a mano</h2>
         <form action={addTransaction} className={styles.form}>
           <div className={styles.field}>
             <label>Fecha</label>
@@ -65,22 +81,26 @@ export default async function MovimientosPage() {
         <h2 className={styles.cardTitle}>Últimos 100</h2>
         <table className={styles.table}>
           <thead>
-            <tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Nota</th><th className={styles.num}>Importe</th></tr>
+            <tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Nota</th><th>Recibo</th><th className={styles.num}>Importe</th></tr>
           </thead>
           <tbody>
-            {txs.map((t) => (
+            {txs.map((t) => {
+              const url = t.receipt_url ? signedUrls.get(t.receipt_url) : null;
+              return (
               <tr key={t.id}>
                 <td>{t.occurred_on}</td>
                 <td>{t.kind === "income" ? "Ingreso" : "Gasto"}</td>
                 <td>{t.category}</td>
                 <td style={{ color: "var(--c-ink-60)" }}>{t.note ?? ""}</td>
+                <td>{url ? <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--c-accent-teal)" }}>ver</a> : ""}</td>
                 <td className={`${styles.num} ${Number(t.amount) >= 0 ? styles.kpiGood : styles.kpiBad}`}>
                   {eur(Number(t.amount))}
                 </td>
               </tr>
-            ))}
+              );
+            })}
             {txs.length === 0 && (
-              <tr><td colSpan={5} style={{ color: "var(--c-ink-60)" }}>Sin movimientos todavía.</td></tr>
+              <tr><td colSpan={6} style={{ color: "var(--c-ink-60)" }}>Sin movimientos todavía.</td></tr>
             )}
           </tbody>
         </table>

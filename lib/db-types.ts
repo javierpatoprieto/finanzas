@@ -5,6 +5,7 @@ export type Transaction = {
   category: string;
   kind: "income" | "expense";
   note: string | null;
+  receipt_url: string | null;
   created_at: string;
 };
 

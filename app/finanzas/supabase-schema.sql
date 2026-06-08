@@ -10,9 +10,13 @@ create table if not exists transactions (
   category    text not null,                      -- nomina | extra | freelance | vivienda | comida | ocio | suscripcion | otro
   kind        text not null check (kind in ('income','expense')),
   note        text,
+  receipt_url text,                                -- ruta en Storage del recibo/captura (opcional)
   created_at  timestamptz not null default now()
 );
 create index if not exists transactions_date_idx on transactions(occurred_on desc);
+
+-- Si ya creaste la tabla antes, añade la columna nueva con:
+alter table transactions add column if not exists receipt_url text;
 
 create table if not exists debts (
   id              uuid primary key default gen_random_uuid(),
