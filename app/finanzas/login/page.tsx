@@ -1,15 +1,22 @@
 import { redirect } from "next/navigation";
-import bcrypt from "bcryptjs";
+import crypto from "node:crypto";
 import { readSession, createSession } from "@/lib/session";
 import styles from "../finanzas.module.css";
+
+function sha256(input: string): string {
+  return crypto.createHash("sha256").update(input).digest("hex");
+}
 
 async function login(formData: FormData) {
   "use server";
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/finanzas");
-  const hash = process.env.DASHBOARD_PASSWORD_HASH;
-  if (!hash) throw new Error("Falta DASHBOARD_PASSWORD_HASH en .env.local");
-  const ok = await bcrypt.compare(password, hash);
+  const expected = process.env.DASHBOARD_PASSWORD_HASH;
+  if (!expected) throw new Error("Falta DASHBOARD_PASSWORD_HASH en .env.local");
+  const provided = sha256(password);
+  const ok =
+    provided.length === expected.length &&
+    crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
   if (!ok) redirect(`/finanzas/login?error=1&next=${encodeURIComponent(next)}`);
   await createSession();
   redirect(next.startsWith("/finanzas") ? next : "/finanzas");

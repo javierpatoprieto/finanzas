@@ -20,8 +20,8 @@ Copia `.env.local.example` a `.env.local` y rellénalo. Para generar los secreto
 # Secret de sesión
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
-# Hash de tu contraseña (cámbiala por la que quieras)
-node -e "console.log(require('bcryptjs').hashSync('MI_CONTRASEÑA_AQUI',10))"
+# Hash SHA-256 de tu contraseña (hex, sin caracteres especiales)
+node -e "console.log(require('crypto').createHash('sha256').update('MI_CONTRASEÑA_AQUI').digest('hex'))"
 ```
 
 Pega los resultados en `.env.local`:
