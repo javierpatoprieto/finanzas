@@ -68,6 +68,19 @@ create table if not exists investment_snapshots (
 );
 create index if not exists investment_snapshots_inv_idx on investment_snapshots(investment_id, taken_on desc);
 
+-- Huchas / botes de ahorro (colchón, reserva impuestos, etc.)
+create table if not exists savings_pots (
+  id         uuid primary key default gen_random_uuid(),
+  name       text not null unique,
+  balance    numeric(12,2) not null default 0,
+  target     numeric(12,2),                       -- meta opcional
+  note       text,
+  created_at timestamptz not null default now()
+);
+insert into savings_pots (name, balance, target, note) values
+  ('Colchón de emergencia', 0, 1000, 'Cuenta remunerada Trade Republic')
+on conflict (name) do nothing;
+
 -- Datos iniciales de Javier (puedes editar/borrar luego desde la UI)
 insert into debts (name, principal, apr, min_payment, early_repay_fee) values
   ('Préstamo banco',  17600, 0.06, 350, 0.01),

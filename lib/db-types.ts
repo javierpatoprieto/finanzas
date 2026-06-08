@@ -43,6 +43,15 @@ export type Investment = {
   created_at: string;
 };
 
+export type SavingsPot = {
+  id: string;
+  name: string;
+  balance: number;
+  target: number | null;
+  note: string | null;
+  created_at: string;
+};
+
 export type InvestmentSnapshot = {
   id: string;
   investment_id: string;

@@ -1,7 +1,8 @@
 import { requireAuth } from "@/lib/dal";
 import { supabase, selectMany } from "@/lib/supabase";
 import { getQuotes } from "@/lib/quotes";
-import type { Debt, Transaction, Investment } from "@/lib/db-types";
+import type { Debt, Transaction, Investment, SavingsPot } from "@/lib/db-types";
+import { updateSavingsPot } from "./actions";
 import styles from "./finanzas.module.css";
 
 const eur = (n: number) =>
@@ -23,10 +24,11 @@ export default async function DashboardPage() {
   const today = new Date();
   const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
 
-  const [debts, txs, invs] = await Promise.all([
+  const [debts, txs, invs, pots] = await Promise.all([
     selectMany<Debt>(sb.from("debts").select("*").eq("is_active", true)),
     selectMany<Pick<Transaction, "amount" | "kind">>(sb.from("transactions").select("amount, kind").gte("occurred_on", firstOfMonth)),
     selectMany<Investment>(sb.from("investments").select("*").eq("is_active", true)),
+    selectMany<SavingsPot>(sb.from("savings_pots").select("*").order("created_at")),
   ]);
 
   const totalDebt = debts.reduce((s, d) => s + Number(d.principal), 0);
@@ -123,6 +125,46 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {pots.length > 0 && (
+        <div className={styles.split}>
+          {pots.map((pot) => {
+            const bal = Number(pot.balance);
+            const target = pot.target != null ? Number(pot.target) : null;
+            const pct = target && target > 0 ? Math.min(100, (bal / target) * 100) : null;
+            return (
+              <div key={pot.id} className={styles.card}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                  <h2 className={styles.cardTitle} style={{ marginBottom: 0 }}>{pot.name}</h2>
+                  <span style={{ fontFamily: "var(--ff-display)", fontSize: "var(--t-h4)", fontWeight: 600 }}>
+                    {eur(bal)}{target ? <span style={{ color: "var(--c-ink-60)", fontSize: "var(--t-ui)" }}> / {eur(target)}</span> : null}
+                  </span>
+                </div>
+                {pct != null && (
+                  <>
+                    <div className={styles.progress}><div className={styles.progressBar} style={{ width: `${pct}%` }} /></div>
+                    <div className={styles.kpiSub}>{pct.toFixed(0)} % · faltan {eur(Math.max(0, (target ?? 0) - bal))}</div>
+                  </>
+                )}
+                {pot.note && <div className={styles.kpiSub}>{pot.note}</div>}
+                <form action={updateSavingsPot} className={styles.form} style={{ marginTop: "var(--space-3)", gridTemplateColumns: "1fr 1fr auto" }}>
+                  <input type="hidden" name="id" value={pot.id} />
+                  <input type="hidden" name="mode" value="add" />
+                  <div className={styles.field}>
+                    <label>Sumar / restar (€)</label>
+                    <input type="number" name="amount" step="0.01" placeholder="+250 o -50" required />
+                  </div>
+                  <div className={styles.field}>
+                    <label>Meta (€)</label>
+                    <input type="text" name="target" defaultValue={target ?? ""} />
+                  </div>
+                  <button type="submit" className={styles.btn}>Actualizar</button>
+                </form>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className={styles.split}>
         <div className={styles.card}>

@@ -196,6 +196,37 @@ const InvSnapshotSchema = z.object({
   note: z.string().optional(),
 });
 
+const SavingsSchema = z.object({
+  id: z.string().uuid(),
+  mode: z.enum(["set", "add"]).default("set"),
+  amount: z.coerce.number(),
+  target: z.string().optional(),
+});
+
+export async function updateSavingsPot(formData: FormData): Promise<void> {
+  await requireAuth();
+  const parsed = SavingsSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) fail(parsed.error.issues[0]?.message ?? "Datos inválidos");
+  const p = parsed.data;
+
+  const patch: Record<string, number> = {};
+  if (p.mode === "add") {
+    const { data: cur } = await tbl("savings_pots").select("balance").eq("id", p.id).single();
+    const current = cur ? Number(cur.balance) : 0;
+    patch.balance = Math.max(0, current + p.amount);
+  } else {
+    patch.balance = Math.max(0, p.amount);
+  }
+  if (p.target !== undefined && p.target.trim() !== "") {
+    const t = Number(p.target.replace(",", "."));
+    if (Number.isFinite(t)) patch.target = t;
+  }
+
+  const { error } = await tbl("savings_pots").update(patch).eq("id", p.id);
+  if (error) fail(error.message);
+  revalidatePath("/finanzas");
+}
+
 const InvestmentConfigSchema = z.object({
   investment_id: z.string().uuid(),
   ticker: z.string().optional(),
