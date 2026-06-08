@@ -16,7 +16,7 @@ const wordVariants = {
   hidden: { y: "110%" },
   show: {
     y: 0,
-    transition: { duration: 0.95, ease: [0.165, 0.84, 0.44, 1] },
+    transition: { duration: 0.95, ease: [0.165, 0.84, 0.44, 1] as const },
   },
 };
 
@@ -95,7 +95,7 @@ export function Hero() {
                 initial={{ y: "110%", opacity: 0, filter: "blur(8px)" }}
                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                 exit={{ y: "-110%", opacity: 0, filter: "blur(8px)" }}
-                transition={{ duration: 0.85, ease: [0.76, 0, 0.24, 1] }}
+                transition={{ duration: 0.85, ease: [0.76, 0, 0.24, 1] as const }}
               >
                 <Scramble text={hero.rotatingWords[idx]} duration={420} stagger={28} />
               </motion.span>

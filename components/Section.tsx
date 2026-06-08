@@ -70,7 +70,7 @@ export function Section({ index, label, children, id, tone = "default" }: Props)
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, margin: "-30% 0px -30% 0px" }}
-        transition={{ duration: 0.7, ease: [0.165, 0.84, 0.44, 1] }}
+        transition={{ duration: 0.7, ease: [0.165, 0.84, 0.44, 1] as const }}
       >
         <span className={styles.index}>{index}</span>
         <motion.span

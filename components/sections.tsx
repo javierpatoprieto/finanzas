@@ -17,7 +17,7 @@ import {
 import styles from "./sections.module.css";
 
 const viewport = { once: false, margin: "-15% 0px -15% 0px" };
-const ease = [0.165, 0.84, 0.44, 1];
+const ease: [number, number, number, number] = [0.165, 0.84, 0.44, 1];
 
 /* ============================================================
    1. ABOUT — scroll-triggered word-by-word blur reveal
