@@ -1,12 +1,13 @@
 import { requireAuth } from "@/lib/dal";
 import { supabase, selectMany } from "@/lib/supabase";
-import type { Debt, Transaction, Investment, InvestmentSnapshot } from "@/lib/db-types";
+import { getQuotes } from "@/lib/quotes";
+import type { Debt, Transaction, Investment } from "@/lib/db-types";
 import styles from "./finanzas.module.css";
-
-type InvWithSnaps = Investment & { investment_snapshots: Pick<InvestmentSnapshot, "current_value" | "taken_on">[] };
 
 const eur = (n: number) =>
   n.toLocaleString("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+
+export const dynamic = "force-dynamic";
 
 function monthsToPayoff(principal: number, apr: number, monthly: number): number {
   if (principal <= 0) return 0;
@@ -25,7 +26,7 @@ export default async function DashboardPage() {
   const [debts, txs, invs] = await Promise.all([
     selectMany<Debt>(sb.from("debts").select("*").eq("is_active", true)),
     selectMany<Pick<Transaction, "amount" | "kind">>(sb.from("transactions").select("amount, kind").gte("occurred_on", firstOfMonth)),
-    selectMany<InvWithSnaps>(sb.from("investments").select("id, name, kind, is_active, created_at, investment_snapshots(current_value, taken_on)")),
+    selectMany<Investment>(sb.from("investments").select("*").eq("is_active", true)),
   ]);
 
   const totalDebt = debts.reduce((s, d) => s + Number(d.principal), 0);
@@ -34,11 +35,26 @@ export default async function DashboardPage() {
   const expense = txs.filter((t) => t.kind === "expense").reduce((s, t) => s + Number(t.amount), 0);
   const netMonth = income + expense;
 
+  // Valor de inversión en vivo (ETFs por ticker + valores manuales)
+  const tickers = invs.map((i) => i.ticker).filter((t): t is string => !!t);
+  const quotes = await getQuotes([...tickers, "EURUSD=X"]);
+  const eurusd = quotes.get("EURUSD=X")?.price ?? null;
+  let investmentsCost = 0;
   const investmentsTotal = invs.reduce((sum, inv) => {
-    const snaps = inv.investment_snapshots ?? [];
-    const latest = [...snaps].sort((a, b) => b.taken_on.localeCompare(a.taken_on))[0];
-    return sum + (latest ? Number(latest.current_value) : 0);
+    if (inv.ticker && inv.units != null) {
+      const q = quotes.get(inv.ticker);
+      if (!q) return sum;
+      const priceEur = q.currency === "USD" && eurusd ? q.price / eurusd : q.price;
+      investmentsCost += inv.cost_basis != null ? Number(inv.cost_basis) : 0;
+      return sum + priceEur * Number(inv.units);
+    }
+    if (inv.manual_value != null) {
+      investmentsCost += inv.cost_basis != null ? Number(inv.cost_basis) : Number(inv.manual_value);
+      return sum + Number(inv.manual_value);
+    }
+    return sum;
   }, 0);
+  const investmentsPnl = investmentsTotal - investmentsCost;
 
   // Plan recomendado (avalancha)
   const sorted = [...debts].sort((a, b) => Number(b.apr) - Number(a.apr));
@@ -100,7 +116,11 @@ export default async function DashboardPage() {
         <div className={styles.kpi}>
           <div className={styles.kpiLabel}>Inversión</div>
           <div className={`${styles.kpiValue} ${styles.kpiGood}`}>{eur(investmentsTotal)}</div>
-          <div className={styles.kpiSub}>Valor actual de cartera</div>
+          <div className={styles.kpiSub}>
+            {investmentsCost > 0
+              ? <>P&amp;L <span className={investmentsPnl >= 0 ? styles.kpiGood : styles.kpiBad}>{investmentsPnl >= 0 ? "+" : ""}{eur(investmentsPnl)}</span> · en vivo</>
+              : "Valor actual de cartera"}
+          </div>
         </div>
       </div>
 

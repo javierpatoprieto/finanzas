@@ -35,6 +35,11 @@ export type Investment = {
   name: string;
   kind: string;
   is_active: boolean;
+  // Cotización automática (ETFs):
+  ticker: string | null;       // símbolo Yahoo Finance, ej. "SXR8.DE"
+  units: number | null;        // nº de participaciones
+  cost_basis: number | null;   // total invertido (€), para P&L
+  manual_value: number | null; // valor fijado a mano (plan de pensiones u otros sin ticker)
   created_at: string;
 };
 

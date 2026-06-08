@@ -196,6 +196,36 @@ const InvSnapshotSchema = z.object({
   note: z.string().optional(),
 });
 
+const InvestmentConfigSchema = z.object({
+  investment_id: z.string().uuid(),
+  ticker: z.string().optional(),
+  units: z.string().optional(),
+  cost_basis: z.string().optional(),
+  manual_value: z.string().optional(),
+});
+
+const numOrNull = (s?: string) => {
+  if (s === undefined || s.trim() === "") return null;
+  const n = Number(s.replace(",", "."));
+  return Number.isFinite(n) ? n : null;
+};
+
+export async function updateInvestment(formData: FormData): Promise<void> {
+  await requireAuth();
+  const parsed = InvestmentConfigSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) fail(parsed.error.issues[0]?.message ?? "Datos inválidos");
+  const c = parsed.data;
+  const { error } = await tbl("investments").update({
+    ticker: c.ticker?.trim() || null,
+    units: numOrNull(c.units),
+    cost_basis: numOrNull(c.cost_basis),
+    manual_value: numOrNull(c.manual_value),
+  }).eq("id", c.investment_id);
+  if (error) fail(error.message);
+  revalidatePath("/finanzas");
+  revalidatePath("/finanzas/inversion");
+}
+
 export async function addInvestmentSnapshot(formData: FormData): Promise<void> {
   await requireAuth();
   const parsed = InvSnapshotSchema.safeParse(Object.fromEntries(formData));

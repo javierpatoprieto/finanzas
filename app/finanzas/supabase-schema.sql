@@ -41,12 +41,21 @@ create table if not exists debt_payments (
 create index if not exists debt_payments_debt_idx on debt_payments(debt_id, paid_on desc);
 
 create table if not exists investments (
-  id          uuid primary key default gen_random_uuid(),
-  name        text not null,                      -- "ETF S&P500", "Plan pensiones RV"
-  kind        text not null,                      -- etf | pension | crypto | otro
-  is_active   boolean not null default true,
-  created_at  timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  name         text not null,                      -- "ETF S&P500", "Plan pensiones RV"
+  kind         text not null,                      -- etf | pension | crypto | otro
+  is_active    boolean not null default true,
+  ticker       text,                               -- símbolo Yahoo Finance (ETFs), ej "SXR8.DE"
+  units        numeric(18,6),                      -- nº de participaciones
+  cost_basis   numeric(12,2),                      -- total invertido (€), para P&L
+  manual_value numeric(12,2),                      -- valor fijado a mano (sin ticker)
+  created_at   timestamptz not null default now()
 );
+-- Si ya creaste la tabla antes, añade las columnas nuevas:
+alter table investments add column if not exists ticker text;
+alter table investments add column if not exists units numeric(18,6);
+alter table investments add column if not exists cost_basis numeric(12,2);
+alter table investments add column if not exists manual_value numeric(12,2);
 
 create table if not exists investment_snapshots (
   id            uuid primary key default gen_random_uuid(),
