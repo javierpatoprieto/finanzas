@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(firecrawl-scrape)",
+      "Skill(firecrawl-scrape:*)",
+      "Bash(cd \"/c/Users/proje/Desktop/javierpato.es\" && mkdir -p .firecrawl && firecrawl scrape \"https://www.fromanother.love/\" --format markdown,html,links,screenshot --wait-for 3000 -o .firecrawl/fromanother-home.json)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('.firecrawl/fromanother-home.json'\\)\\); print\\('KEYS:', list\\(d.keys\\(\\)\\)\\); print\\('META:', json.dumps\\(d.get\\('metadata', {}\\), indent=2\\)[:2000]\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(curl -s \"https://www.fromanother.love/_next/static/css/0aeb6dd71854dfdd.css?dpl=dpl_7eLbphaiEPoMAaVfRuiuxGP56UfK\" -o .firecrawl/css1.css)",
+      "Bash(curl -s \"https://www.fromanother.love/_next/static/css/58add917cc9964f3.css?dpl=dpl_7eLbphaiEPoMAaVfRuiuxGP56UfK\" -o .firecrawl/css2.css)",
+      "Bash(curl -s \"https://www.fromanother.love/_next/static/css/f1307f0b6d1b3399.css?dpl=dpl_7eLbphaiEPoMAaVfRuiuxGP56UfK\" -o .firecrawl/css3.css)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "Bash(npm run *)",
+      "Bash(echo \"started, pid: $!\")",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__list_connected_browsers",
+      "Bash(firecrawl scrape *)",
+      "mcp__Claude_in_Chrome__select_browser",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__computer",
+      "Skill(frontend-design)",
+      "Skill(frontend-design:*)",
+      "mcp__Claude_in_Chrome__javascript_tool",
+      "PowerShell(Get-ChildItem \"node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\02-guides\" | Where-Object { $_.Name -match \"auth|middleware|env|route|server|action\" } | Select-Object Name)",
+      "Bash(npm install *)",
+      "Bash(mkdir -p \"app/\\(site\\)\")",
+      "Bash(mv app/page.tsx \"app/\\(site\\)/page.tsx\")",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"console.log\\('SESSION_SECRET='+require\\('crypto'\\).randomBytes\\(32\\).toString\\('base64'\\)\\); console.log\\('DASHBOARD_PASSWORD_HASH='+require\\('bcryptjs'\\).hashSync\\('preview-only',10\\)\\); console.log\\('NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co'\\); console.log\\('SUPABASE_SERVICE_ROLE_KEY=placeholder'\\);\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/finanzas/login)",
+      "Bash(curl -s http://localhost:3000/finanzas/login)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s -o /dev/null -w \"login:%{http_code}\\\\n\" \"http://localhost:3000/finanzas/login\")",
+      "Bash(curl -s -c /tmp/cookies.txt -b /tmp/cookies.txt -L -X POST -d \"password=QmPObRP4UbbPj2sk&next=/finanzas\" \"http://localhost:3000/finanzas/login\" -o /tmp/login_response.html -w \"final:%{http_code} url:%{url_effective}\\\\n\")",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}

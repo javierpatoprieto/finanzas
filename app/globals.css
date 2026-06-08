@@ -1,0 +1,133 @@
+/* ===========================================================
+   javierpato.es — Liquid Editorial
+   v0.3 — grotesque rígido + atmósfera líquida
+   =========================================================== */
+
+:root {
+  /* === COLOR ============================================== */
+  --c-bg:          #051236;
+  --c-ink:         #FFFDE2;
+  --c-ink-60:      rgba(255, 253, 226, 0.60);
+  --c-ink-30:      rgba(255, 253, 226, 0.30);
+  --c-ink-12:      rgba(255, 253, 226, 0.12);
+
+  --c-accent:      #1740A9;
+  --c-accent-teal: #4FE3C1;
+
+  /* Cinema palette — navy/dark constante, una sola excepción cream. */
+  --c-sec-hero:    #051236;   /* navy base */
+  --c-sec-about:   #0A1A33;   /* deep navy */
+  --c-sec-what:    #2A1614;   /* deep oxblood */
+  --c-sec-work:    #F2EBD5;   /* warm parchment (única clara) */
+  --c-sec-team:    #131C2E;   /* deep slate-navy */
+  --c-sec-trust:   #16201A;   /* deep forest */
+
+  /* === TYPOGRAPHY — TODO grotesque, CERO italic ============ */
+  --ff-display: var(--font-bricolage), system-ui, sans-serif;
+  --ff-sans:    var(--font-geist), system-ui, -apple-system, sans-serif;
+  --ff-mono:    var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+
+  /* === SCALE ============================================== */
+  --t-mega:    clamp(7rem, 14vw, 18rem);
+  --t-display: clamp(4.4rem, 8.8vw, 11.2rem);
+  --t-huge:    clamp(3.2rem, 6.4vw, 8rem);
+  --t-h1:      clamp(3.6rem, 5vw, 6.4rem);
+  --t-h2:      clamp(2.8rem, 4vw, 4.8rem);
+  --t-h3:      clamp(2.2rem, 3vw, 3.2rem);
+  --t-h4:      clamp(1.8rem, 2vw, 2.4rem);
+  --t-body:    1.7rem;
+  --t-ui:      1.3rem;
+  --t-caption: 1.2rem;
+  --t-micro:   1.05rem;
+
+  /* === SPACE ============================================== */
+  --space-1: 0.4rem;
+  --space-2: 0.8rem;
+  --space-3: 1.6rem;
+  --space-4: 2.4rem;
+  --space-5: 3.2rem;
+  --space-6: 4.8rem;
+  --space-7: 6.4rem;
+  --space-8: 9.6rem;
+  --space-9: 14.4rem;
+  --space-10: 22.4rem;
+
+  /* === GRID =============================================== */
+  --grid-pad-x:   1.6rem;
+  --toc-w:        14rem;
+
+  /* === MOTION ============================================= */
+  --ease-out-quart:    cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --dur-fast:   180ms;
+  --dur-base:   320ms;
+  --dur-slow:   640ms;
+  --dur-cinema: 1200ms;
+
+  --nav-h: 6.4rem;
+}
+
+@media (min-width: 768px)  { :root { --grid-pad-x: 3.2rem; } }
+@media (min-width: 1280px) { :root { --grid-pad-x: 4.8rem; } }
+
+/* === RESET ================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-size: 62.5%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 480px) { html { font-size: 56.25%; } }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--ff-sans);
+  font-size: var(--t-body);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  font-style: normal;
+}
+
+h1, h2, h3, h4, h5, h6, p, figure, blockquote { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button {
+  font: inherit; color: inherit;
+  background: none; border: 0; padding: 0;
+  cursor: pointer;
+}
+img, video, svg {
+  display: block; max-width: 100%; height: auto;
+}
+ul, ol { list-style: none; margin: 0; padding: 0; }
+
+/* Cero italics en toda la app */
+em, i, .italic { font-style: normal; }
+
+::selection {
+  background: var(--c-ink);
+  color: var(--c-bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-accent-teal);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

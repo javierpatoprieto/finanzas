@@ -1,0 +1,10 @@
+.container {
+  width: 100%;
+  padding-left: var(--grid-pad-x);
+  padding-right: var(--grid-pad-x);
+}
+
+.full {
+  padding-left: 0;
+  padding-right: 0;
+}

@@ -1,0 +1,165 @@
+.hero {
+  position: relative;
+  min-height: 100vh;
+  padding: calc(var(--nav-h) + var(--space-7)) var(--grid-pad-x) var(--space-7);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--c-sec-hero);
+}
+
+/* === AURORA WRAPPER ==================================== */
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* === LANGS (top-right, mono not italic) ================ */
+.langs {
+  position: absolute;
+  top: calc(var(--nav-h) + var(--space-4));
+  right: var(--grid-pad-x);
+  font-family: var(--ff-mono);
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  display: none;
+}
+
+@media (min-width: 768px) { .langs { display: inline-flex; align-items: center; gap: 0.6rem; } }
+
+.langs span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.langDot {
+  color: var(--c-ink-30);
+  font-family: var(--ff-mono);
+}
+
+/* === TITLE — display grotesque, no italic ============== */
+.title {
+  margin-top: auto;
+  margin-bottom: auto;
+  font-family: var(--ff-display);
+  font-weight: 700;
+  font-stretch: 80%;
+  font-size: clamp(4.4rem, 9.5vw, 14rem);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  text-align: center;
+  max-width: 100%;
+  animation: widthBreathe 12s var(--ease-in-out-cubic) infinite;
+}
+
+/* Variable font width axis pulse — esto es lo que respira */
+@keyframes widthBreathe {
+  0%, 100% { font-stretch: 80%; }
+  50%      { font-stretch: 95%; }
+}
+
+.line {
+  display: block;
+  overflow: visible;
+}
+
+.wordMask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  line-height: 0.92;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform;
+}
+
+.rotator {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr;
+  align-items: baseline;
+  vertical-align: bottom;
+  min-width: 8ch;
+  overflow: hidden;
+  line-height: 0.92;
+}
+
+.rotator > * {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.rotatorWord {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform, opacity, filter;
+  /* sutiles micro-tracks que dan textura líquida al texto */
+  font-feature-settings: "ss01", "cv01";
+}
+
+/* === SINCE LABEL — mono coordinate style =============== */
+.since {
+  position: absolute;
+  left: var(--grid-pad-x);
+  bottom: var(--space-7);
+  font-family: var(--ff-mono);
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.since::before {
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--c-accent-teal);
+  border-radius: 50%;
+  animation: pulseDot 2s var(--ease-in-out-cubic) infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50%      { transform: scale(1.6); opacity: 1; }
+}
+
+/* === SCROLL CUE ======================================== */
+.cue {
+  position: absolute;
+  left: 50%;
+  bottom: 1.6rem;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 6rem;
+  overflow: hidden;
+}
+
+.cue span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--c-ink-30);
+  animation: scrollCue 2.4s var(--ease-in-out-cubic) infinite;
+  transform-origin: top;
+}
+
+@keyframes scrollCue {
+  0%   { transform: scaleY(0); transform-origin: top; }
+  45%  { transform: scaleY(1); transform-origin: top; }
+  55%  { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}

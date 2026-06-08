@@ -1,0 +1,62 @@
+.wrap, .wrapTall {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--c-bg);
+}
+
+.img {
+  object-fit: cover;
+  filter: saturate(0.85) contrast(1.05);
+  transition: transform var(--dur-cinema) var(--ease-out-quart);
+}
+
+.tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+}
+
+.symbol {
+  position: absolute;
+  top: 6%;
+  left: 5%;
+  font-family: var(--ff-display);
+  font-weight: 800;
+  font-stretch: 80%;
+  font-size: clamp(8rem, 18vw, 22rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--c-ink);
+  opacity: 0.95;
+  pointer-events: none;
+  user-select: none;
+  text-transform: uppercase;
+  mix-blend-mode: screen;
+}
+
+.tag {
+  position: absolute;
+  right: 5%;
+  bottom: 5%;
+  font-family: var(--ff-mono);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  opacity: 0.85;
+  pointer-events: none;
+}

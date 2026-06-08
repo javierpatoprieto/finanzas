@@ -1,0 +1,206 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--c-bg);
+  color: var(--c-ink);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* aurora glow at the bottom of the menu (cheap CSS) */
+.overlay::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -20%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 60%;
+  background: radial-gradient(ellipse 60% 70% at 50% 100%,
+    rgba(79, 227, 193, 0.35) 0%,
+    rgba(23, 64, 169, 0.25) 35%,
+    transparent 75%);
+  filter: blur(80px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: var(--space-4) var(--grid-pad-x) var(--space-5);
+  gap: var(--space-5);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  font-family: var(--ff-mono);
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-ink-60);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--ff-mono);
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-ink);
+  transition: opacity var(--dur-fast) var(--ease-out-quart);
+}
+
+.closeBtn span {
+  display: inline-block;
+  width: 1.4rem;
+  height: 1px;
+  background: currentColor;
+  transform-origin: center;
+}
+.closeBtn span:nth-child(1) { transform: rotate(45deg) translateY(0.5px); }
+.closeBtn span:nth-child(2) { transform: rotate(-45deg) translateY(-0.5px); margin-left: -1.4rem; }
+
+.closeBtn:hover { opacity: 0.7; }
+
+/* === NAV LIST ============================================ */
+.nav {
+  align-self: center;
+  width: 100%;
+}
+
+.nav ol {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav li {
+  border-top: 1px solid var(--c-ink-12);
+}
+
+.nav li:last-child {
+  border-bottom: 1px solid var(--c-ink-12);
+}
+
+.link {
+  display: grid;
+  grid-template-columns: 6rem 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5) 0;
+  color: var(--c-ink);
+  position: relative;
+  transition: padding-left var(--dur-base) var(--ease-out-quart),
+              color var(--dur-base) var(--ease-out-quart);
+}
+
+.link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--c-ink);
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  transition: transform var(--dur-base) var(--ease-out-quart);
+  z-index: -1;
+}
+
+.link:hover { color: var(--c-bg); padding-left: var(--space-3); }
+.link:hover::before { transform: scaleY(1); transform-origin: top center; }
+
+.linkNum {
+  font-family: var(--ff-mono);
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  color: var(--c-ink-60);
+  text-align: left;
+}
+
+.link:hover .linkNum { color: var(--c-bg); opacity: 0.6; }
+
+.linkLabel {
+  font-family: var(--ff-display);
+  font-weight: 700;
+  font-stretch: 88%;
+  font-size: clamp(4.8rem, 11vw, 14rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.linkArrow {
+  width: 3rem;
+  height: 3rem;
+  opacity: 0.5;
+  transition: opacity var(--dur-base) var(--ease-out-quart),
+              transform var(--dur-base) var(--ease-out-quart);
+}
+
+.link:hover .linkArrow {
+  opacity: 1;
+  transform: translate(0.6rem, -0.6rem);
+}
+
+/* === FOOT ================================================ */
+.foot {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .foot { grid-template-columns: 1.4fr 1fr 1fr; }
+}
+
+.footCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.email {
+  font-family: var(--ff-display);
+  font-weight: 600;
+  font-stretch: 90%;
+  font-size: clamp(2rem, 3vw, 3.2rem);
+  letter-spacing: -0.02em;
+  color: var(--c-ink);
+  text-transform: lowercase;
+  transition: opacity var(--dur-fast) var(--ease-out-quart);
+}
+
+.email:hover { opacity: 0.7; }
+
+.socials,
+.langs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-family: var(--ff-mono);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.socials a {
+  transition: opacity var(--dur-fast) var(--ease-out-quart);
+}
+.socials a:hover { opacity: 0.6; }
+
+.langs { flex-direction: row; gap: var(--space-3); }

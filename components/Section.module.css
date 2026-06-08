@@ -1,0 +1,56 @@
+.section {
+  position: relative;
+  min-height: 100vh;
+  padding: var(--space-9) var(--grid-pad-x);
+  background: var(--sec-bg, var(--c-bg));
+  color: var(--sec-ink, var(--c-ink));
+  overflow: hidden;
+  isolation: isolate;
+  transition: background-color var(--dur-cinema) var(--ease-in-out-cubic);
+}
+
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* === TAG (index + label) — mono uppercase, no italic ==== */
+.tag {
+  display: grid;
+  grid-template-columns: auto 2.4rem auto;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: var(--space-7);
+  font-family: var(--ff-mono);
+  text-transform: uppercase;
+}
+
+.index {
+  font-family: var(--ff-mono);
+  font-size: 1.1rem;
+  color: currentColor;
+  opacity: 0.55;
+  letter-spacing: 0.04em;
+  font-feature-settings: "tnum";
+}
+
+.dash {
+  display: block;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  transform-origin: left center;
+  width: 2.4rem;
+}
+
+.label {
+  font-family: var(--ff-mono);
+  font-size: 1.1rem;
+  color: currentColor;
+  opacity: 0.9;
+  letter-spacing: 0.06em;
+}
+
+.body { display: block; position: relative; }
