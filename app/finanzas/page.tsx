@@ -265,14 +265,38 @@ export default async function DashboardPage() {
       {/* Plan + tabla deuda */}
       <div className={styles.split}>
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>Plan de ataque (avalancha)</h2>
-          <ol style={{ display: "grid", gap: "0.8rem", fontSize: "1.4rem", color: "var(--muted)" }}>
-            <li>1 — Reserva 1.000 € de colchón antes de amortizar.</li>
-            <li>2 — Mata la tarjeta (11 %) primero.</li>
-            <li>3 — Vuelca al préstamo (6 %) en bloques de 3-6 m.</li>
-            <li>4 — Mantén los ETF. Pausa el plan de pensiones hasta deuda 0.</li>
-            <li>5 — 300 €/mes para ti, intocables.</li>
+          <h2 className={styles.cardTitle}>Tu plan, paso a paso</h2>
+          <ol style={{ display: "grid", gap: "1.2rem", fontSize: "1.4rem", color: "var(--text)" }}>
+            <li>
+              <strong style={{ color: "var(--green)" }}>Fase 0 · ahora (2-3 meses)</strong>
+              <div style={{ color: "var(--muted)", marginTop: "0.3rem" }}>
+                Solo cuotas mínimas de deuda. Todo lo extra al colchón en TR hasta cubrir 1 mes de gastos.
+                Cuando esté lleno, dejas de vivir al día.
+              </div>
+            </li>
+            <li>
+              <strong>Fase 1 · matar la tarjeta (~6 m)</strong>
+              <div style={{ color: "var(--muted)", marginTop: "0.3rem" }}>
+                Tarjeta primero (11 %): cuota mín. + ~900 €/mes extra.
+              </div>
+            </li>
+            <li>
+              <strong>Fase 2 · demoler el préstamo (~14 m)</strong>
+              <div style={{ color: "var(--muted)", marginTop: "0.3rem" }}>
+                Préstamo (6 %): +1.000 €/mes en bloques de 3-6 m por la comisión 1 %.
+              </div>
+            </li>
+            <li>
+              <strong>Reglas fijas</strong>
+              <div style={{ color: "var(--muted)", marginTop: "0.3rem" }}>
+                ETFs 50 €/mes · Plan de pensiones pausado · 300 €/mes para ti, intocables · IVA de Volantis al bote de impuestos.
+              </div>
+            </li>
           </ol>
+          <div style={{ marginTop: "1.6rem", padding: "1.2rem", background: "var(--surface-2)", borderRadius: "1rem", fontSize: "1.3rem", color: "var(--text)" }}>
+            <strong style={{ color: "var(--green)" }}>Regla del día 10:</strong>{" "}
+            <span style={{ color: "var(--muted)" }}>cuando cobres, ese dinero es para el mes siguiente, no para gastar ya. Mueve el sobrante a TR antes de hacer nada.</span>
+          </div>
         </div>
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Deuda por instrumento</h2>
