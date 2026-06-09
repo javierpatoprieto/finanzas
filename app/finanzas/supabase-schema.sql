@@ -81,6 +81,16 @@ insert into savings_pots (name, balance, target, note) values
   ('Colchón de emergencia', 0, 1000, 'Cuenta remunerada Trade Republic')
 on conflict (name) do nothing;
 
+-- Foto diaria del patrimonio (para gráficos de evolución)
+create table if not exists net_worth_snapshots (
+  snapshot_on date primary key,
+  net_worth   numeric(12,2) not null,
+  total_debt  numeric(12,2) not null default 0,
+  investments numeric(12,2) not null default 0,
+  savings     numeric(12,2) not null default 0,
+  created_at  timestamptz not null default now()
+);
+
 -- Datos iniciales de Javier (puedes editar/borrar luego desde la UI)
 insert into debts (name, principal, apr, min_payment, early_repay_fee) values
   ('Préstamo banco',  17600, 0.06, 350, 0.01),

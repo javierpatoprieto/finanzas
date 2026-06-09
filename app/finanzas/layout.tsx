@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { readSession } from "@/lib/session";
+import { BottomNav } from "./BottomNav";
 import styles from "./finanzas.module.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default async function FinanzasLayout({ children }: { children: React.Rea
         <nav className={styles.nav}>
           <Link href="/finanzas" className={styles.brand}>● Finanzas</Link>
           <div className={styles.links}>
-            <Link href="/finanzas">Dashboard</Link>
+            <Link href="/finanzas">Inicio</Link>
             <Link href="/finanzas/movimientos">Movimientos</Link>
             <Link href="/finanzas/deuda">Deuda</Link>
             <Link href="/finanzas/inversion">Inversión</Link>
@@ -27,6 +28,7 @@ export default async function FinanzasLayout({ children }: { children: React.Rea
         </nav>
       )}
       <div className={styles.main}>{children}</div>
+      {session && <BottomNav />}
     </div>
   );
 }

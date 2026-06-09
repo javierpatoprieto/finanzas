@@ -43,6 +43,15 @@ export type Investment = {
   created_at: string;
 };
 
+export type NetWorthSnapshot = {
+  snapshot_on: string;
+  net_worth: number;
+  total_debt: number;
+  investments: number;
+  savings: number;
+  created_at: string;
+};
+
 export type SavingsPot = {
   id: string;
   name: string;
