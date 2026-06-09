@@ -17,9 +17,14 @@
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-geist), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   padding-bottom: 9rem; /* hueco para la barra inferior en móvil */
+}
+.shell :where(h1, h2, h3, .heroValue, .kpiValue) {
+  font-family: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.03em;
 }
 
 /* ---------- Top bar (desktop) ---------- */
@@ -36,7 +41,7 @@
   border-bottom: 1px solid var(--border);
 }
 .brand {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-manrope), sans-serif;
   font-size: 1.4rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -56,7 +61,7 @@
 }
 .links a:hover { color: var(--text); background: var(--surface); }
 .logout {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-manrope), sans-serif;
   font-size: 1.2rem;
   color: var(--muted);
   padding: 0.7rem 1.4rem;
@@ -130,7 +135,7 @@
   margin-bottom: 1.6rem;
 }
 .heroLabel {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-manrope), sans-serif;
   font-size: 1.2rem;
   color: var(--muted);
   letter-spacing: 0.06em;
@@ -160,7 +165,7 @@
   padding: 1.8rem;
 }
 .kpiLabel {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-manrope), sans-serif;
   font-size: 1.1rem;
   color: var(--muted);
   letter-spacing: 0.04em;
@@ -226,7 +231,7 @@
   font-variant-numeric: tabular-nums;
 }
 .table th {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-manrope), sans-serif;
   font-size: 1.1rem;
   color: var(--muted);
   letter-spacing: 0.04em;
@@ -245,7 +250,7 @@
 @media (min-width: 600px) { .form { grid-template-columns: repeat(2, 1fr); } }
 .field { display: flex; flex-direction: column; gap: 0.5rem; }
 .field label {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-manrope), sans-serif;
   font-size: 1.1rem;
   color: var(--muted);
   letter-spacing: 0.03em;
