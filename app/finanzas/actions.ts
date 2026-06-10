@@ -196,6 +196,23 @@ const InvSnapshotSchema = z.object({
   note: z.string().optional(),
 });
 
+function currentMonth(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export async function toggleTask(formData: FormData): Promise<void> {
+  await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (!id) fail("Falta id");
+  const month = currentMonth();
+  const { data: t } = await tbl("monthly_tasks").select("last_done").eq("id", id).single();
+  const willMark = t?.last_done !== month;
+  const { error } = await tbl("monthly_tasks").update({ last_done: willMark ? month : null }).eq("id", id);
+  if (error) fail(error.message);
+  revalidatePath("/finanzas");
+}
+
 const SavingsSchema = z.object({
   id: z.string().uuid(),
   mode: z.enum(["set", "add"]).default("set"),

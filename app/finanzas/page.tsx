@@ -5,6 +5,7 @@ import { getQuotes } from "@/lib/quotes";
 import type { Debt, Transaction, Investment, SavingsPot, NetWorthSnapshot } from "@/lib/db-types";
 import { updateSavingsPot } from "./actions";
 import { AreaLine, GroupedBars, CategoryBars } from "./components/charts";
+import { Checklist } from "./Checklist";
 import styles from "./finanzas.module.css";
 
 const eur = (n: number) =>
@@ -261,6 +262,9 @@ export default async function DashboardPage() {
           })}
         </div>
       )}
+
+      {/* Checklist mensual */}
+      <Checklist />
 
       {/* Plan + tabla deuda */}
       <div className={styles.split}>

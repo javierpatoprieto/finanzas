@@ -91,6 +91,16 @@ create table if not exists net_worth_snapshots (
   created_at  timestamptz not null default now()
 );
 
+-- Checklist mensual (se "resetea" solo al cambiar de mes mirando last_done)
+create table if not exists monthly_tasks (
+  id         uuid primary key default gen_random_uuid(),
+  text       text not null,
+  group_name text not null default 'general',  -- finanzas | panel | vida | pro
+  sort_order int  not null default 0,
+  last_done  text,                              -- 'YYYY-MM'
+  created_at timestamptz not null default now()
+);
+
 -- Datos iniciales de Javier (puedes editar/borrar luego desde la UI)
 insert into debts (name, principal, apr, min_payment, early_repay_fee) values
   ('Préstamo banco',  17600, 0.06, 350, 0.01),

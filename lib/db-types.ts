@@ -43,6 +43,15 @@ export type Investment = {
   created_at: string;
 };
 
+export type MonthlyTask = {
+  id: string;
+  text: string;
+  group_name: "finanzas" | "panel" | "vida" | "pro" | string;
+  sort_order: number;
+  last_done: string | null;
+  created_at: string;
+};
+
 export type NetWorthSnapshot = {
   snapshot_on: string;
   net_worth: number;
