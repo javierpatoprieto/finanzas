@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import styles from "./finanzas.module.css";
 
 const TABS = [
@@ -19,10 +20,17 @@ export function BottomNav() {
         const active = pathname === t.href;
         return (
           <Link key={t.href} href={t.href} className={`${styles.tab} ${active ? styles.tabActive : ""}`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            {active && (
+              <motion.span
+                layoutId="bottomNavIndicator"
+                className={styles.tabIndicator}
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+              />
+            )}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ position: "relative", zIndex: 1 }}>
               <path d={t.icon} />
             </svg>
-            {t.label}
+            <span style={{ position: "relative", zIndex: 1 }}>{t.label}</span>
           </Link>
         );
       })}

@@ -9,6 +9,7 @@ import { CountUp } from "./components/CountUp";
 import { Sparkline } from "./components/Sparkline";
 import { Ring } from "./components/Ring";
 import { Donut } from "./components/Donut";
+import { Reveal } from "./components/Reveal";
 import { Checklist } from "./Checklist";
 import styles from "./finanzas.module.css";
 
@@ -158,6 +159,7 @@ export default async function DashboardPage() {
   return (
     <>
       {/* HERO patrimonio neto */}
+      <Reveal delay={0}>
       <div className={styles.hero}>
         <div className={styles.heroLabel}>Patrimonio neto</div>
         <div className={styles.heroTopRow}>
@@ -192,14 +194,20 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      </Reveal>
+
       {/* Accesos rápidos */}
+      <Reveal delay={0.08}>
       <div className={styles.quickRow}>
         <Link href="/finanzas/movimientos">＋ Movimiento</Link>
         <Link href="/finanzas/deuda">Pagar deuda</Link>
         <Link href="/finanzas/inversion">Inversión</Link>
       </div>
 
+      </Reveal>
+
       {/* KPIs */}
+      <Reveal delay={0.16}>
       <div className={styles.kpiGrid}>
         <div className={styles.kpi}>
           <div className={styles.kpiTop}>
@@ -249,7 +257,10 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      </Reveal>
+
       {/* Gráficos: patrimonio + deuda */}
+      <Reveal delay={0.24}>
       <div className={styles.split}>
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Patrimonio neto en el tiempo</h2>
@@ -263,7 +274,10 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      </Reveal>
+
       {/* Gráficos: ingresos/gastos + categorías */}
+      <Reveal delay={0.32}>
       <div className={styles.split}>
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Ingresos vs gastos</h2>
@@ -281,8 +295,11 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      </Reveal>
+
       {/* Huchas */}
       {pots.length > 0 && (
+        <Reveal delay={0.40}>
         <div className={styles.split}>
           {pots.map((pot) => {
             const bal = Number(pot.balance);
@@ -349,12 +366,16 @@ export default async function DashboardPage() {
             );
           })}
         </div>
+        </Reveal>
       )}
 
       {/* Checklist mensual */}
-      <Checklist />
+      <Reveal delay={0.48}>
+        <Checklist />
+      </Reveal>
 
       {/* Plan + tabla deuda */}
+      <Reveal delay={0.56}>
       <div className={styles.split}>
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Tu plan, paso a paso</h2>
@@ -412,6 +433,7 @@ export default async function DashboardPage() {
           </table>
         </div>
       </div>
+      </Reveal>
     </>
   );
 }
