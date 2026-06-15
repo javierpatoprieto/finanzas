@@ -4,10 +4,11 @@ import { supabase, selectMany, tbl } from "@/lib/supabase";
 import { getQuotes } from "@/lib/quotes";
 import type { Debt, Transaction, Investment, SavingsPot, NetWorthSnapshot } from "@/lib/db-types";
 import { updateSavingsPot } from "./actions";
-import { AreaLine, GroupedBars, CategoryBars } from "./components/charts";
+import { AreaLine, GroupedBars } from "./components/charts";
 import { CountUp } from "./components/CountUp";
 import { Sparkline } from "./components/Sparkline";
 import { Ring } from "./components/Ring";
+import { Donut } from "./components/Donut";
 import { Checklist } from "./Checklist";
 import styles from "./finanzas.module.css";
 
@@ -146,6 +147,13 @@ export default async function DashboardPage() {
     catMap.set(t.category, (catMap.get(t.category) ?? 0) + Math.abs(Number(t.amount)));
   }
   const catData = [...catMap.entries()].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value).slice(0, 8);
+  const totalExpenseMonth = catData.reduce((s, d) => s + d.value, 0);
+
+  // Series para sparklines de KPIs (de snaps + valor actual)
+  const snapsTail = snaps.slice(-20);
+  const debtSpark = [...snapsTail.map((s) => Number(s.total_debt)), totalDebt];
+  const invSpark  = [...snapsTail.map((s) => Number(s.investments)), investmentsTotal];
+  const netSpark  = monthBuckets.map((b) => b.income - b.expense);
 
   return (
     <>
@@ -194,24 +202,46 @@ export default async function DashboardPage() {
       {/* KPIs */}
       <div className={styles.kpiGrid}>
         <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Deuda total</div>
+          <div className={styles.kpiTop}>
+            <div className={styles.kpiLabel}>Deuda total</div>
+            {debtSpark.length >= 2 && (
+              <Sparkline points={debtSpark} stroke="var(--red)" fill="rgba(255,100,124,0.12)" width={70} height={26} />
+            )}
+          </div>
           <div className={`${styles.kpiValue} ${styles.kpiBad}`}>{eur(totalDebt)}</div>
           <div className={styles.kpiSub}>Cuota mín. {eur(monthlyDebtMin)}/mes</div>
         </div>
         <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Libre de deuda</div>
+          <div className={styles.kpiTop}>
+            <div className={styles.kpiLabel}>Libre de deuda</div>
+          </div>
           <div className={styles.kpiValue}>{payoffMonths === Infinity ? "—" : `${payoffMonths} m`}</div>
           <div className={styles.kpiSub}>
             {payoffMonths === Infinity ? "Cuota no cubre intereses" : `~${payoffDate.toLocaleDateString("es-ES", { month: "short", year: "numeric" })}`}
           </div>
         </div>
         <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Neto del mes</div>
+          <div className={styles.kpiTop}>
+            <div className={styles.kpiLabel}>Neto del mes</div>
+            {netSpark.length >= 2 && (
+              <Sparkline
+                points={netSpark}
+                stroke={netMonth >= 0 ? "var(--green)" : "var(--red)"}
+                fill={netMonth >= 0 ? "rgba(34,215,138,0.14)" : "rgba(255,100,124,0.12)"}
+                width={70} height={26}
+              />
+            )}
+          </div>
           <div className={`${styles.kpiValue} ${netMonth >= 0 ? styles.kpiGood : styles.kpiBad}`}>{eur(netMonth)}</div>
           <div className={styles.kpiSub}>+{eur(income)} · −{eur(Math.abs(expense))}</div>
         </div>
         <div className={styles.kpi}>
-          <div className={styles.kpiLabel}>Inversión</div>
+          <div className={styles.kpiTop}>
+            <div className={styles.kpiLabel}>Inversión</div>
+            {invSpark.length >= 2 && (
+              <Sparkline points={invSpark} stroke="var(--green)" fill="rgba(34,215,138,0.14)" width={70} height={26} />
+            )}
+          </div>
           <div className={`${styles.kpiValue} ${styles.kpiGood}`}>{eur(investmentsTotal)}</div>
           <div className={styles.kpiSub}>
             {investmentsCost > 0 ? <>P&amp;L {investmentsPnl >= 0 ? "+" : ""}{eur(investmentsPnl)}</> : "En vivo"}
@@ -241,7 +271,13 @@ export default async function DashboardPage() {
         </div>
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Gastos por categoría · {MONTHS_ES[today.getMonth()]}</h2>
-          <CategoryBars data={catData} />
+          <Donut
+            data={catData}
+            size={180}
+            thickness={28}
+            centerValue={eur(totalExpenseMonth)}
+            centerLabel="este mes"
+          />
         </div>
       </div>
 

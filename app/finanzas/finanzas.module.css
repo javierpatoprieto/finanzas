@@ -320,6 +320,14 @@
   font-variant-numeric: tabular-nums;
 }
 .kpiSub { margin-top: 0.8rem; font-size: 1.2rem; color: var(--muted-2); font-weight: 500; }
+.kpiTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+.kpiTop > .kpiLabel { margin-bottom: 0; }
 .kpiGood { color: var(--green); }
 .kpiBad  { color: var(--red); }
 
