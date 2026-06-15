@@ -26,13 +26,13 @@
     radial-gradient(900px 500px at -10% 20%, rgba(91, 141, 239, 0.06), transparent 60%),
     var(--bg);
   color: var(--text);
-  font-family: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   padding-bottom: 9rem;
 }
 .shell :where(h1, h2, h3, .heroValue, .kpiValue) {
-  font-family: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.035em;
   font-feature-settings: "tnum", "ss01";
 }
@@ -51,7 +51,7 @@
   border-bottom: 1px solid var(--border);
 }
 .brand {
-  font-family: var(--font-manrope), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 1.4rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -71,7 +71,7 @@
 }
 .links a:hover { color: var(--text); background: var(--surface); }
 .logout {
-  font-family: var(--font-manrope), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 1.2rem;
   color: var(--muted);
   padding: 0.7rem 1.4rem;
@@ -394,7 +394,7 @@
   font-variant-numeric: tabular-nums;
 }
 .table th {
-  font-family: var(--font-manrope), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 1.1rem;
   color: var(--muted);
   letter-spacing: 0.04em;
@@ -413,7 +413,7 @@
 @media (min-width: 600px) { .form { grid-template-columns: repeat(2, 1fr); } }
 .field { display: flex; flex-direction: column; gap: 0.5rem; }
 .field label {
-  font-family: var(--font-manrope), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-size: 1.1rem;
   color: var(--muted);
   letter-spacing: 0.03em;

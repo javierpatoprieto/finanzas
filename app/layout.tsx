@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Geist, Geist_Mono, Manrope } from "next/font/google";
+import { Bricolage_Grotesque, Geist, Geist_Mono, Manrope, Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -49,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${bricolage.variable} ${geist.variable} ${geistMono.variable} ${manrope.variable}`}
+      className={`${bricolage.variable} ${geist.variable} ${geistMono.variable} ${manrope.variable} ${inter.variable}`}
     >
       <body>{children}</body>
     </html>
