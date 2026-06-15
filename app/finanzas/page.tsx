@@ -5,6 +5,9 @@ import { getQuotes } from "@/lib/quotes";
 import type { Debt, Transaction, Investment, SavingsPot, NetWorthSnapshot } from "@/lib/db-types";
 import { updateSavingsPot } from "./actions";
 import { AreaLine, GroupedBars, CategoryBars } from "./components/charts";
+import { CountUp } from "./components/CountUp";
+import { Sparkline } from "./components/Sparkline";
+import { Ring } from "./components/Ring";
 import { Checklist } from "./Checklist";
 import styles from "./finanzas.module.css";
 
@@ -149,15 +152,35 @@ export default async function DashboardPage() {
       {/* HERO patrimonio neto */}
       <div className={styles.hero}>
         <div className={styles.heroLabel}>Patrimonio neto</div>
-        <div className={styles.heroValue}>{eur(netWorth)}</div>
-        <div className={styles.heroDelta}>
-          <span className={investmentsPnl >= 0 ? styles.kpiGood : styles.kpiBad}>
-            {investmentsPnl >= 0 ? "▲" : "▼"} {investmentsPnl >= 0 ? "+" : ""}{eur(investmentsPnl)}
-          </span>
-          <span style={{ color: "var(--muted)" }}> · inversión en vivo</span>
+        <div className={styles.heroTopRow}>
+          <CountUp
+            className={styles.heroValue}
+            value={Math.abs(Math.round(netWorth))}
+            prefix={netWorth < 0 ? "−" : ""}
+            suffix=" €"
+          />
+          {nwSeries.length >= 2 && (
+            <div className={styles.heroSparkWrap}>
+              <Sparkline
+                points={nwSeries.slice(-30).map((p) => p.value)}
+                stroke={investmentsPnl >= 0 ? "var(--green)" : "var(--red)"}
+                fill={investmentsPnl >= 0 ? "rgba(34,215,138,0.15)" : "rgba(255,100,124,0.12)"}
+                width={160}
+                height={48}
+              />
+            </div>
+          )}
         </div>
-        <div className={styles.kpiSub}>
-          Inversión {eur(investmentsTotal)} · Colchón {eur(savingsTotal)} · Deuda −{eur(totalDebt)}
+        <div className={styles.heroPills}>
+          <span className={`${styles.pill} ${investmentsPnl >= 0 ? styles.pillGood : styles.pillBad}`}>
+            {investmentsPnl >= 0 ? "↗" : "↘"} {investmentsPnl >= 0 ? "+" : ""}{eur(investmentsPnl)}
+          </span>
+          <span className={styles.pillNeutral}>inversión en vivo</span>
+        </div>
+        <div className={styles.heroBreakdown}>
+          <div><span className={styles.bdLabel}>Inversión</span><span className={styles.bdVal}>{eur(investmentsTotal)}</span></div>
+          <div><span className={styles.bdLabel}>Colchón</span><span className={styles.bdVal}>{eur(savingsTotal)}</span></div>
+          <div><span className={styles.bdLabel}>Deuda</span><span className={`${styles.bdVal} ${styles.kpiBad}`}>−{eur(totalDebt)}</span></div>
         </div>
       </div>
 
@@ -231,19 +254,48 @@ export default async function DashboardPage() {
             const pct = target && target > 0 ? Math.min(100, (bal / target) * 100) : null;
             return (
               <div key={pot.id} className={styles.card}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <h2 className={styles.cardTitle} style={{ marginBottom: 0 }}>{pot.name}</h2>
-                  <span style={{ fontSize: "1.8rem", fontWeight: 700 }}>
-                    {eur(bal)}{target ? <span style={{ color: "var(--muted)", fontSize: "1.3rem" }}> / {eur(target)}</span> : null}
-                  </span>
+                <h2 className={styles.cardTitle} style={{ marginBottom: "1.6rem" }}>{pot.name}</h2>
+
+                <div className={styles.potBody}>
+                  {pct != null ? (
+                    <Ring
+                      pct={pct}
+                      size={170}
+                      stroke={14}
+                      label={
+                        <div>
+                          <div style={{ fontSize: "3rem", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1 }}>
+                            {pct.toFixed(0)}<span style={{ fontSize: "1.6rem", color: "var(--muted)", marginLeft: "0.1rem" }}>%</span>
+                          </div>
+                          <div style={{ fontSize: "1.05rem", color: "var(--muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: "0.3rem" }}>
+                            completado
+                          </div>
+                        </div>
+                      }
+                    />
+                  ) : null}
+                  <div className={styles.potMeta}>
+                    <div>
+                      <div className={styles.bdLabel}>Saldo</div>
+                      <div className={styles.bdVal} style={{ fontSize: "2.4rem" }}>{eur(bal)}</div>
+                    </div>
+                    {target && (
+                      <div>
+                        <div className={styles.bdLabel}>Meta</div>
+                        <div className={styles.bdVal} style={{ color: "var(--muted-2)" }}>{eur(target)}</div>
+                      </div>
+                    )}
+                    {target && (
+                      <div>
+                        <div className={styles.bdLabel}>Faltan</div>
+                        <div className={styles.bdVal} style={{ color: "var(--green)" }}>{eur(Math.max(0, target - bal))}</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {pct != null && (
-                  <>
-                    <div className={styles.progress}><div className={styles.progressBar} style={{ width: `${pct}%` }} /></div>
-                    <div className={styles.kpiSub}>{pct.toFixed(0)} % · faltan {eur(Math.max(0, (target ?? 0) - bal))}</div>
-                  </>
-                )}
-                {pot.note && <div className={styles.kpiSub}>{pot.note}</div>}
+
+                {pot.note && <div className={styles.kpiSub} style={{ marginTop: "1.4rem" }}>{pot.note}</div>}
+
                 <form action={updateSavingsPot} className={styles.form} style={{ marginTop: "1.6rem" }}>
                   <input type="hidden" name="id" value={pot.id} />
                   <input type="hidden" name="mode" value="add" />
