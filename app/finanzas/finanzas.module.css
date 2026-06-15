@@ -1,6 +1,26 @@
 /* ===========================================================
-   Panel /finanzas — Fintech oscuro
+   Panel /finanzas — Fintech con light/dark
    =========================================================== */
+
+:root[data-theme="light"] .shell,
+:root[data-theme="light"] {
+  --bg:           #F5F6F9;
+  --bg-2:         #ECEEF3;
+  --surface:      rgba(255, 255, 255, 0.85);
+  --surface-2:    rgba(240, 242, 247, 0.7);
+  --border:       rgba(10, 14, 30, 0.07);
+  --border-2:     rgba(10, 14, 30, 0.14);
+  --text:         #0B0F1C;
+  --muted:        #6B7493;
+  --muted-2:      #4F5872;
+  --green:        #11B16C;
+  --green-glow:   rgba(17, 177, 108, 0.25);
+  --red:          #E5364D;
+  --red-glow:     rgba(229, 54, 77, 0.18);
+  --magenta:      #E94F87;
+  --blue:         #3C6CE0;
+  --amber:        #E59100;
+}
 
 .shell {
   --bg:           #070A12;
@@ -22,14 +42,19 @@
 
   min-height: 100vh;
   background:
-    radial-gradient(1200px 600px at 80% -10%, rgba(34, 215, 138, 0.06), transparent 60%),
-    radial-gradient(900px 500px at -10% 20%, rgba(91, 141, 239, 0.06), transparent 60%),
+    radial-gradient(1200px 600px at 80% -10%, var(--tint-green, rgba(34, 215, 138, 0.06)), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, var(--tint-blue, rgba(91, 141, 239, 0.06)), transparent 60%),
     var(--bg);
   color: var(--text);
   font-family: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   padding-bottom: 9rem;
+  transition: background-color 280ms ease, color 280ms ease;
+}
+:root[data-theme="light"] .shell {
+  --tint-green: rgba(17, 177, 108, 0.10);
+  --tint-blue:  rgba(60, 108, 224, 0.07);
 }
 .shell :where(h1, h2, h3, .heroValue, .kpiValue) {
   font-family: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
@@ -152,16 +177,25 @@
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(800px 400px at 90% -20%, rgba(34, 215, 138, 0.18), transparent 60%),
-    radial-gradient(600px 400px at 0% 100%, rgba(91, 141, 239, 0.12), transparent 60%),
-    linear-gradient(160deg, rgba(28, 36, 56, 0.85) 0%, rgba(14, 18, 32, 0.85) 100%);
+    radial-gradient(800px 400px at 90% -20%, var(--hero-green, rgba(34, 215, 138, 0.18)), transparent 60%),
+    radial-gradient(600px 400px at 0% 100%, var(--hero-blue, rgba(91, 141, 239, 0.12)), transparent 60%),
+    linear-gradient(160deg, var(--hero-grad-1, rgba(28, 36, 56, 0.85)) 0%, var(--hero-grad-2, rgba(14, 18, 32, 0.85)) 100%);
   border: 1px solid var(--border-2);
   border-radius: 2.4rem;
   padding: 3rem 2.6rem;
   margin-bottom: 2rem;
   backdrop-filter: blur(20px) saturate(120%);
   -webkit-backdrop-filter: blur(20px) saturate(120%);
-  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  box-shadow: 0 30px 80px -30px var(--hero-shadow, rgba(0, 0, 0, 0.6)), 0 0 0 1px var(--hero-inset, rgba(255, 255, 255, 0.02)) inset;
+  transition: border-color 280ms ease, box-shadow 280ms ease;
+}
+:root[data-theme="light"] .hero {
+  --hero-green:  rgba(17, 177, 108, 0.18);
+  --hero-blue:   rgba(60, 108, 224, 0.14);
+  --hero-grad-1: rgba(255, 255, 255, 0.92);
+  --hero-grad-2: rgba(245, 247, 252, 0.92);
+  --hero-shadow: rgba(20, 30, 60, 0.18);
+  --hero-inset:  rgba(255, 255, 255, 0.6);
 }
 .hero::before {
   content: "";
@@ -184,13 +218,47 @@
   line-height: 0.95;
   margin: 1rem 0 0.4rem;
   font-variant-numeric: tabular-nums;
-  background: linear-gradient(180deg, #FFFFFF 0%, #C8CFE0 100%);
+  background: linear-gradient(180deg, var(--heroValue-1, #FFFFFF) 0%, var(--heroValue-2, #C8CFE0) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 60px rgba(34, 215, 138, 0.12);
 }
 .heroDelta { font-size: 1.5rem; font-weight: 500; }
+:root[data-theme="light"] .heroValue {
+  --heroValue-1: #0B0F1C;
+  --heroValue-2: #2B3552;
+}
+
+/* ---------- Theme toggle button + tap feedback ---------- */
+.themeToggle {
+  width: 4rem;
+  height: 4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1), background 220ms ease, border-color 220ms ease;
+}
+.themeToggle:hover { border-color: var(--border-2); }
+.themeToggle:active { transform: scale(0.92); }
+
+/* Aplica feedback "presionado" a todo lo clickable */
+.shell button:not(:disabled):active,
+.shell .btn:not(:disabled):active,
+.shell a:active {
+  transform: scale(0.97);
+}
+.shell button,
+.shell .btn,
+.shell a {
+  transition: transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 160ms ease, border-color 220ms ease, background 220ms ease, color 220ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
 
 .heroTopRow {
   display: flex;

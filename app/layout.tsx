@@ -56,6 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
+      suppressHydrationWarning
       className={`${bricolage.variable} ${geist.variable} ${geistMono.variable} ${manrope.variable} ${inter.variable}`}
     >
       <body>{children}</body>
