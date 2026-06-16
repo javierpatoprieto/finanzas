@@ -3,6 +3,7 @@ import { supabase, selectMany } from "@/lib/supabase";
 import { getQuotes } from "@/lib/quotes";
 import type { Investment } from "@/lib/db-types";
 import { updateInvestment } from "../actions";
+import { RetirementProjection } from "../components/RetirementProjection";
 import styles from "../finanzas.module.css";
 
 const eur = (n: number) =>
@@ -110,6 +111,15 @@ export default async function InversionPage() {
       <p className={styles.kpiSub} style={{ marginTop: "var(--space-4)" }}>
         Para el plan de pensiones: pon su valor en &ldquo;Valor manual&rdquo; (deja el ticker vacío). Si algún día tienes el ISIN, lo automatizamos.
       </p>
+
+      <RetirementProjection
+        defaultInitial={Math.round(
+          invs.reduce((sum, inv) => {
+            const { value } = liveValue(inv);
+            return sum + (value ?? 0);
+          }, 0)
+        )}
+      />
     </>
   );
 }
