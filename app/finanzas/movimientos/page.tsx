@@ -3,6 +3,7 @@ import { supabase, selectMany } from "@/lib/supabase";
 import type { Transaction } from "@/lib/db-types";
 import { addTransaction } from "../actions";
 import { ReceiptCapture } from "./ReceiptCapture";
+import { InvoiceTaxCalculator } from "../components/InvoiceTaxCalculator";
 import styles from "../finanzas.module.css";
 
 const eur = (n: number) =>
@@ -38,6 +39,10 @@ export default async function MovimientosPage() {
       <div className={styles.card}>
         <h2 className={styles.cardTitle}>Añadir con foto (IA)</h2>
         <ReceiptCapture />
+      </div>
+
+      <div style={{ margin: "1.6rem 0" }}>
+        <InvoiceTaxCalculator />
       </div>
 
       <div className={styles.card}>

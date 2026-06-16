@@ -4,9 +4,48 @@ import { z } from "zod";
 import { tbl, supabase } from "@/lib/supabase";
 import { requireAuth } from "@/lib/dal";
 import { anthropic } from "@/lib/anthropic";
+import { calculateInvoiceTaxes, type ClientType } from "@/lib/invoiceTaxes";
 import type { Debt } from "@/lib/db-types";
 
 function fail(msg: string): never { throw new Error(msg); }
+
+// ---------- Registrar factura (autónomo en pluriactividad) ----------
+
+const InvoiceSchema = z.object({
+  occurred_on:    z.string().min(8),
+  base_imponible: z.coerce.number().positive(),
+  client_type:    z.enum(["nacional", "internacional"]),
+  concept:        z.string().optional(),
+});
+
+export async function registerInvoice(
+  formData: FormData
+): Promise<{ ok: boolean; error?: string }> {
+  await requireAuth();
+  const parsed = InvoiceSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+
+  const { occurred_on, base_imponible, client_type, concept } = parsed.data;
+  const tax = calculateInvoiceTaxes(base_imponible, client_type as ClientType);
+
+  const { error } = await tbl("transactions").insert({
+    occurred_on,
+    amount: tax.totalFactura,              // dinero que entra en cuenta (positivo)
+    kind: "income",
+    category: "freelance",
+    note: concept || (client_type === "nacional" ? "Factura nacional" : "Factura internacional"),
+    base_imponible: tax.baseImponible,
+    tax_iva_provision:   tax.iva.amount,
+    tax_irpf_provision:  tax.irpfProvision.amount,
+    tax_total_provision: tax.totalProvision,
+    client_type,
+  });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/finanzas");
+  revalidatePath("/finanzas/movimientos");
+  return { ok: true };
+}
 
 const TxSchema = z.object({
   occurred_on: z.string().min(8),

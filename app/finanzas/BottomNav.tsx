@@ -7,9 +7,10 @@ import styles from "./finanzas.module.css";
 
 const TABS = [
   { href: "/finanzas", label: "Inicio", icon: "M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10" },
-  { href: "/finanzas/movimientos", label: "Movimientos", icon: "M4 7h16M4 12h16M4 17h10" },
+  { href: "/finanzas/movimientos", label: "Movim.", icon: "M4 7h16M4 12h16M4 17h10" },
   { href: "/finanzas/deuda", label: "Deuda", icon: "M3 17l6-6 4 4 7-8M21 7h-4M21 7v4" },
-  { href: "/finanzas/inversion", label: "Inversión", icon: "M4 19V5m0 14h16M8 16V9m4 7V6m4 10v-4" },
+  { href: "/finanzas/inversion", label: "Inv.", icon: "M4 19V5m0 14h16M8 16V9m4 7V6m4 10v-4" },
+  { href: "/finanzas/fiscal", label: "Fiscal", icon: "M9 11l3 3 7-7M3 7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z" },
 ];
 
 export function BottomNav() {
