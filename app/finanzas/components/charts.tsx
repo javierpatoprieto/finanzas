@@ -60,6 +60,11 @@ export function AreaLine({
 }
 
 /* ---------- Barras agrupadas (ingresos vs gastos) ---------- */
+const compactEur = (n: number) => {
+  if (n >= 1000) return `${(n / 1000).toLocaleString("es-ES", { maximumFractionDigits: 1 })}k`;
+  return Math.round(n).toLocaleString("es-ES");
+};
+
 export function GroupedBars({
   data,
 }: {
@@ -69,12 +74,34 @@ export function GroupedBars({
   const max = Math.max(1, ...data.flatMap((d) => [d.income, d.expense]));
   return (
     <div className={styles.chartWrap}>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: "1.2rem", height: "16rem" }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: "1.2rem", height: "18rem" }}>
         {data.map((d, i) => (
           <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem", height: "100%" }}>
-            <div style={{ flex: 1, display: "flex", alignItems: "flex-end", gap: "0.3rem", width: "100%", justifyContent: "center" }}>
-              <div title={`Ingresos ${eur0(d.income)}`} style={{ width: "42%", background: "#34D399", height: `${(d.income / max) * 100}%`, borderRadius: "4px 4px 0 0", minHeight: d.income > 0 ? "3px" : 0 }} />
-              <div title={`Gastos ${eur0(d.expense)}`} style={{ width: "42%", background: "#FB7185", height: `${(d.expense / max) * 100}%`, borderRadius: "4px 4px 0 0", minHeight: d.expense > 0 ? "3px" : 0 }} />
+            <div style={{ flex: 1, display: "flex", alignItems: "flex-end", gap: "0.4rem", width: "100%", justifyContent: "center" }}>
+              {/* INGRESOS */}
+              <div style={{ width: "42%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%" }}>
+                {d.income > 0 && (
+                  <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#34D399", fontVariantNumeric: "tabular-nums", marginBottom: "0.3rem", lineHeight: 1 }}>
+                    {compactEur(d.income)}
+                  </span>
+                )}
+                <div
+                  title={`Ingresos ${eur0(d.income)}`}
+                  style={{ width: "100%", background: "#34D399", height: `${(d.income / max) * 100}%`, borderRadius: "4px 4px 0 0", minHeight: d.income > 0 ? "3px" : 0 }}
+                />
+              </div>
+              {/* GASTOS */}
+              <div style={{ width: "42%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%" }}>
+                {d.expense > 0 && (
+                  <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "#FB7185", fontVariantNumeric: "tabular-nums", marginBottom: "0.3rem", lineHeight: 1 }}>
+                    {compactEur(d.expense)}
+                  </span>
+                )}
+                <div
+                  title={`Gastos ${eur0(d.expense)}`}
+                  style={{ width: "100%", background: "#FB7185", height: `${(d.expense / max) * 100}%`, borderRadius: "4px 4px 0 0", minHeight: d.expense > 0 ? "3px" : 0 }}
+                />
+              </div>
             </div>
             <span style={{ fontSize: "1.05rem", color: "var(--muted)" }}>{d.label}</span>
           </div>
