@@ -1,5 +1,6 @@
 import { requireAuth } from "@/lib/dal";
 import { supabase, selectMany } from "@/lib/supabase";
+import { FreeformTaxCalc } from "../components/FreeformTaxCalc";
 
 export const dynamic = "force-dynamic";
 
@@ -196,6 +197,9 @@ export default async function FiscalPage() {
         <div style={T.eyebrow}>Calendario fiscal · pluriactividad</div>
         <h1 style={T.h1}>Resumen fiscal {year}</h1>
         <p style={T.lede}>Cuánto debes apartar, cuándo se paga y qué llevas acumulado del año.</p>
+
+        {/* Calculadora rápida (libre) */}
+        <FreeformTaxCalc />
 
         {/* Alerta principal: próximo 303 */}
         <div style={T.alertWrap}>
