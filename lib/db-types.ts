@@ -43,6 +43,19 @@ export type Investment = {
   created_at: string;
 };
 
+export type Subscription = {
+  id: string;
+  name: string;
+  amount: number;
+  frequency: "monthly" | "yearly";
+  day_of_month: number | null;
+  is_active: boolean;
+  cancelled_at: string | null;
+  last_charged_on: string | null;
+  note: string | null;
+  created_at: string;
+};
+
 export type MonthlyTask = {
   id: string;
   text: string;

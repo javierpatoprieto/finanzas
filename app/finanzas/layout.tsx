@@ -24,6 +24,7 @@ export default async function FinanzasLayout({ children }: { children: React.Rea
             <Link href="/finanzas/deuda">Deuda</Link>
             <Link href="/finanzas/inversion">Inversión</Link>
             <Link href="/finanzas/fiscal">Fiscal</Link>
+            <Link href="/finanzas/suscripciones">Suscripciones</Link>
           </div>
           <ThemeToggle />
           <form action="/finanzas/api/logout" method="post">

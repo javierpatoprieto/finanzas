@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAuth } from "@/lib/dal";
 import { supabase, selectMany } from "@/lib/supabase";
 import type { Transaction } from "@/lib/db-types";
@@ -40,6 +41,27 @@ export default async function MovimientosPage() {
         <h2 className={styles.cardTitle}>Añadir con foto (IA)</h2>
         <ReceiptCapture />
       </div>
+
+      <Link href="/finanzas/suscripciones" style={{
+        display: "block",
+        marginBottom: "1.6rem",
+        padding: "1.4rem 1.8rem",
+        background: "var(--surface)",
+        border: "1px solid var(--border)",
+        borderRadius: "1.4rem",
+        textDecoration: "none",
+        color: "var(--text)",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem" }}>
+          <div>
+            <div style={{ fontSize: "1.4rem", fontWeight: 600 }}>📺 Suscripciones</div>
+            <div style={{ fontSize: "1.15rem", color: "var(--muted)", marginTop: "0.2rem" }}>
+              Mira y cancela las que no usas. El ahorro se acumula.
+            </div>
+          </div>
+          <span style={{ fontSize: "1.6rem", color: "var(--muted)" }}>→</span>
+        </div>
+      </Link>
 
       <div style={{ margin: "1.6rem 0" }}>
         <InvoiceTaxCalculator />

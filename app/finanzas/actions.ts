@@ -235,6 +235,59 @@ const InvSnapshotSchema = z.object({
   note: z.string().optional(),
 });
 
+// ---------- Suscripciones ----------
+
+const SubscriptionSchema = z.object({
+  name: z.string().min(1),
+  amount: z.coerce.number().positive(),
+  frequency: z.enum(["monthly", "yearly"]),
+  day_of_month: z.coerce.number().int().min(1).max(31).optional(),
+  note: z.string().optional(),
+});
+
+export async function addSubscription(formData: FormData): Promise<void> {
+  await requireAuth();
+  const parsed = SubscriptionSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) fail(parsed.error.issues[0]?.message ?? "Datos inválidos");
+  const s = parsed.data;
+  const { error } = await tbl("subscriptions").insert({
+    name: s.name,
+    amount: s.amount,
+    frequency: s.frequency,
+    day_of_month: s.day_of_month ?? null,
+    note: s.note ?? null,
+  });
+  if (error) fail(error.message);
+  revalidatePath("/finanzas/suscripciones");
+  revalidatePath("/finanzas");
+}
+
+export async function toggleSubscription(formData: FormData): Promise<void> {
+  await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (!id) fail("Falta id");
+  const { data: cur } = await tbl("subscriptions").select("is_active").eq("id", id).single();
+  if (!cur) fail("Suscripción no encontrada");
+  const willCancel = cur.is_active;
+  const { error } = await tbl("subscriptions").update({
+    is_active: !willCancel,
+    cancelled_at: willCancel ? new Date().toISOString() : null,
+  }).eq("id", id);
+  if (error) fail(error.message);
+  revalidatePath("/finanzas/suscripciones");
+  revalidatePath("/finanzas");
+}
+
+export async function deleteSubscription(formData: FormData): Promise<void> {
+  await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (!id) fail("Falta id");
+  const { error } = await tbl("subscriptions").delete().eq("id", id);
+  if (error) fail(error.message);
+  revalidatePath("/finanzas/suscripciones");
+  revalidatePath("/finanzas");
+}
+
 function currentMonth(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
