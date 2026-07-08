@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deudas">
+<meta name="theme-color" content="#0a0a0f">
+<title>Deudas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --bg-2:#12121a;
+    --card:rgba(255,255,255,.06);
+    --card-2:rgba(255,255,255,.09);
+    --stroke:rgba(255,255,255,.10);
+    --stroke-2:rgba(255,255,255,.18);
+    --txt:#f4f4f7;
+    --txt-2:rgba(244,244,247,.55);
+    --txt-3:rgba(244,244,247,.35);
+    --mint:#32d6a6;
+    --blue:#4a9eff;
+    --amber:#ffb340;
+    --red:#ff6b5e;
+    --pink:#ff5c8a;
+    --violet:#a988ff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html{background:#0a0a0f}
+  html,body{background-color:#0a0a0f;color:#f4f4f7;min-height:100%;
+    font-family:'Inter',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+    font-feature-settings:'tnum' 1;}
+  .bg-fill{position:fixed;inset:0;background:#0a0a0f;z-index:-3}
+  body{min-height:100vh;overflow-x:hidden;position:relative;
+    padding:calc(env(safe-area-inset-top) + 8px) 16px calc(env(safe-area-inset-bottom) + 34px);
+    max-width:560px;margin:0 auto}
+  /* ambient blobs */
+  body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);z-index:-1;opacity:.5;pointer-events:none}
+  body::before{width:340px;height:340px;background:radial-gradient(circle,#2b6cff,transparent 70%);top:-90px;right:-120px}
+  body::after{width:320px;height:320px;background:radial-gradient(circle,#00d2a0,transparent 70%);top:180px;left:-140px}
+
+  header{display:flex;justify-content:space-between;align-items:flex-end;padding:16px 4px 20px}
+  .greet .k{font-size:13px;color:var(--txt-2);font-weight:500}
+  .greet h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4a9eff,#a988ff);display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff;box-shadow:0 4px 14px rgba(74,158,255,.4)}
+
+  /* Resumen glass */
+  .summary{
+    background:linear-gradient(160deg,rgba(255,255,255,.11),rgba(255,255,255,.04));
+    border:1px solid var(--stroke);border-radius:26px;padding:22px 22px 20px;
+    backdrop-filter:blur(30px) saturate(1.4);-webkit-backdrop-filter:blur(30px) saturate(1.4);
+    box-shadow:0 12px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.14);
+    position:relative;overflow:hidden}
+  .summary .lbl{font-size:12px;color:var(--txt-2);font-weight:500;letter-spacing:.01em}
+  .summary .amount{font-size:42px;font-weight:800;letter-spacing:-.03em;margin:6px 0 2px;line-height:1}
+  .summary .amount .c{font-size:22px;font-weight:600;color:var(--txt-2);margin-left:3px}
+  .summary .sub{font-size:13px;color:var(--txt-2)}
+  .summary .sub b{color:var(--mint);font-weight:600}
+  .track{margin-top:18px;height:10px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;position:relative}
+  .track > i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:linear-gradient(90deg,var(--mint),var(--blue));box-shadow:0 0 16px rgba(50,214,166,.5);width:0;transition:width .9s cubic-bezier(.16,.84,.28,1)}
+  .track-meta{display:flex;justify-content:space-between;margin-top:9px;font-size:11.5px;color:var(--txt-3);font-weight:500}
+  .track-meta b{color:var(--txt-2)}
+
+  .seg{display:flex;gap:4px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);padding:4px;border-radius:15px;margin:20px 0 14px}
+  .seg button{flex:1;border:0;background:transparent;color:var(--txt-2);font-family:inherit;font-size:13.5px;font-weight:600;padding:9px;border-radius:11px;transition:.25s;cursor:pointer}
+  .seg button.on{background:rgba(255,255,255,.13);color:var(--txt);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+
+  /* Tarjeta de deuda */
+  .stack{display:grid;gap:13px}
+  .dcard{
+    background:var(--card);border:1px solid var(--stroke);border-radius:22px;padding:17px 17px 15px;
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    box-shadow:0 8px 26px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08);
+    position:relative;overflow:hidden;transition:.4s cubic-bezier(.2,.8,.2,1)}
+  .dcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);opacity:.9}
+  .dcard.done{opacity:.55}
+  .dtop{display:flex;align-items:center;gap:13px}
+  .dicon{flex:0 0 42px;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;
+    background:color-mix(in srgb,var(--accent) 22%,transparent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+  .dicon svg{width:21px;height:21px}
+  .dmid{flex:1;min-width:0}
+  .dname{font-size:15.5px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:7px}
+  .dsub{font-size:12px;color:var(--txt-2);margin-top:2px;font-weight:500}
+  .pill{font-size:10px;font-weight:700;letter-spacing:.03em;padding:3px 8px;border-radius:99px;white-space:nowrap}
+  .pill.now{background:color-mix(in srgb,var(--amber) 20%,transparent);color:var(--amber)}
+  .pill.hi{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red)}
+  .pill.ok{background:color-mix(in srgb,var(--mint) 18%,transparent);color:var(--mint)}
+  .pill.fija{background:rgba(255,255,255,.08);color:var(--txt-2)}
+  .dcard.fija{opacity:.9}
+  .dcard.fija .dbar>i{opacity:.6}
+  .dval{text-align:right;white-space:nowrap}
+  .dval .v{font-size:18px;font-weight:700;letter-spacing:-.02em}
+  .dcard.done .dval .v{color:var(--mint)}
+  .dbar{margin-top:13px;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .dbar > i{display:block;height:100%;border-radius:99px;background:var(--accent);width:0;transition:width .7s cubic-bezier(.16,.84,.28,1)}
+  .dfoot{display:flex;justify-content:space-between;align-items:center;margin-top:11px}
+  .dnote{font-size:12px;color:var(--txt-2);font-style:italic;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px}
+  .acts{display:flex;gap:8px;flex:0 0 auto}
+  .btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--stroke-2);background:rgba(255,255,255,.05);color:var(--txt);font-family:inherit;font-size:12px;font-weight:600;padding:7px 13px;border-radius:11px;cursor:pointer;transition:.2s}
+  .btn:active{transform:scale(.95)}
+  .btn.primary{background:var(--txt);color:#0a0a0f;border-color:transparent}
+  .btn.paid{background:color-mix(in srgb,var(--mint) 90%,#000);color:#062;border-color:transparent}
+
+  /* editor deslizante */
+  .editor{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.2,.8,.2,1)}
+  .editor.open{max-height:460px}
+  .btn.liquidar{width:100%;margin-top:4px;background:transparent;border:1px solid var(--stroke);color:var(--txt-3);font-size:13px;padding:11px}
+  .editor-in{padding-top:14px;margin-top:13px;padding-bottom:4px;border-top:1px solid var(--stroke);display:grid;gap:12px}
+  .field{position:relative}
+  .field .cap{font-size:11px;color:var(--txt-3);font-weight:600;letter-spacing:.02em;margin-bottom:6px;display:block;text-transform:uppercase}
+  .field input,.field textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--stroke);border-radius:13px;
+    color:var(--txt);font-family:inherit;font-size:15px;font-weight:600;padding:12px 14px;outline:none;transition:.2s}
+  .field textarea{font-weight:400;font-size:13.5px;resize:none;min-height:46px}
+  .field input:focus,.field textarea:focus{border-color:var(--blue);background:rgba(74,158,255,.08)}
+  .field .eur{position:absolute;right:14px;top:33px;color:var(--txt-2);font-weight:600;font-size:15px;pointer-events:none}
+  .ed-row{display:flex;gap:9px}
+  .ed-row .btn{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:13px;font-size:14px;border-radius:13px}
+
+  /* Balance / gráficos */
+  .plate{background:var(--card);border:1px solid var(--stroke);border-radius:22px;padding:18px 8px 14px;margin-bottom:13px;
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 26px rgba(0,0,0,.28)}
+  .plate .cap{display:flex;justify-content:space-between;align-items:baseline;padding:0 12px 12px}
+  .plate .cap h3{font-size:14px;font-weight:700;letter-spacing:-.01em}
+  .plate .cap span{font-size:11.5px;color:var(--txt-3);font-weight:500}
+  svg.chart{width:100%;display:block}
+  .legend{display:flex;gap:18px;justify-content:center;font-size:11px;color:var(--txt-2);margin-top:10px;font-weight:500;flex-wrap:wrap}
+  .legend i{display:inline-block;width:16px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
+
+  footer{text-align:center;margin-top:24px}
+  .reset{background:none;border:0;color:var(--txt-3);font-size:12px;font-family:inherit;font-weight:500;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+  /* Aporte extra */
+  .extra-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;
+    background:linear-gradient(135deg,var(--mint),var(--blue));color:#04211a;border:0;border-radius:16px;
+    font-family:inherit;font-size:14.5px;font-weight:700;letter-spacing:-.01em;padding:14px;cursor:pointer;
+    box-shadow:0 6px 20px rgba(50,214,166,.32);transition:.2s}
+  .extra-btn:active{transform:scale(.97)}
+  .extra-btn svg{width:18px;height:18px}
+  .extra-info{margin-top:11px;font-size:12.5px;color:var(--txt-2);text-align:center;font-weight:500}
+  .extra-info b{color:var(--mint)}
+
+  /* modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(5,5,10,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    z-index:40;display:none;align-items:flex-end;justify-content:center;padding:16px}
+  .modal-bg.on{display:flex}
+  .modal{width:100%;max-width:528px;background:#16161f;border:1px solid var(--stroke-2);border-radius:26px;
+    padding:22px 20px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -8px 40px rgba(0,0,0,.5);
+    animation:slideUp .3s cubic-bezier(.2,.9,.3,1)}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal h3{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+  .modal p{font-size:13px;color:var(--txt-2);margin-bottom:18px;line-height:1.45}
+  .modal p b{color:var(--txt)}
+  .chips{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .chip{flex:1;min-width:70px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);color:var(--txt);
+    font-family:inherit;font-weight:600;font-size:14px;padding:11px;border-radius:12px;cursor:pointer;transition:.2s}
+  .chip.on{background:color-mix(in srgb,var(--mint) 22%,transparent);border-color:var(--mint);color:var(--mint)}
+  .modal .big-in{position:relative;margin-bottom:18px}
+  .modal .big-in input{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--stroke);border-radius:15px;
+    color:var(--txt);font-family:inherit;font-size:26px;font-weight:700;padding:16px 44px 16px 16px;outline:none;text-align:center}
+  .modal .big-in input:focus{border-color:var(--mint)}
+  .modal .big-in .cur{position:absolute;right:18px;top:50%;transform:translateY(-50%);color:var(--txt-2);font-size:22px;font-weight:600}
+  .modal-acts{display:flex;gap:10px}
+  .modal-acts button{flex:1;font-family:inherit;font-weight:700;font-size:15px;padding:14px;border-radius:15px;cursor:pointer;transition:.2s}
+  .modal-acts .cancel{background:rgba(255,255,255,.07);border:1px solid var(--stroke);color:var(--txt)}
+  .modal-acts .confirm{background:var(--mint);border:0;color:#04211a}
+  .modal-acts button:active{transform:scale(.97)}
+
+  /* historial de aportes */
+  .hist{margin-top:13px}
+  .hist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:var(--card);
+    border:1px solid var(--stroke);border-radius:14px;margin-bottom:8px;font-size:13.5px}
+  .hist-item .amt{font-weight:700;color:var(--mint)}
+  .hist-item .del{background:none;border:0;color:var(--txt-3);cursor:pointer;font-size:16px;padding:0 4px}
+
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:20}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}50%{opacity:1}100%{transform:scale(1);opacity:1}}
+  .pop{animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bg-fill"></div>
+<header>
+  <div class="greet"><div class="k" id="greet">Buenas</div><h1>Tus deudas</h1></div>
+  <div class="avatar">J</div>
+</header>
+
+<section class="summary">
+  <div class="lbl">Saldo total pendiente</div>
+  <div class="amount"><span id="owe">0</span><span class="c">€</span></div>
+  <div class="sub">Pagado <b id="paid">0 €</b> de <span id="total">0 €</span></div>
+  <div class="track"><i id="track"></i></div>
+  <div class="track-meta"><span><b id="ndone">0</b> de 5 saldadas</span><span>Meta · <b id="metaFecha">jul 2029</b></span></div>
+  <button class="extra-btn" onclick="openExtra()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    Registrar aporte extra
+  </button>
+  <div class="extra-info" id="extraInfo"></div>
+</section>
+
+<div class="seg">
+  <button id="segD" class="on" onclick="show('d')">Deudas</button>
+  <button id="segG" onclick="show('g')">Balance</button>
+</div>
+
+<div id="viewD" class="stack"></div>
+
+<div id="viewG" style="display:none">
+  <div class="plate">
+    <div class="cap"><h3>Trayectoria</h3><span>jul 26 – may 29</span></div>
+    <svg class="chart" id="chartTime" viewBox="0 0 340 200"></svg>
+    <div class="legend"><span><i style="border-color:#4a9eff;border-top-style:dashed"></i>Plan</span><span><i style="border-color:#32d6a6"></i>Real</span></div>
+  </div>
+  <div class="plate">
+    <div class="cap"><h3>Por deuda</h3><span>escalones</span></div>
+    <svg class="chart" id="chartStep" viewBox="0 0 340 160"></svg>
+  </div>
+  <div class="plate" id="histPlate" style="display:none">
+    <div class="cap"><h3>Aportes extra</h3><span id="histTotal"></span></div>
+    <div class="hist" id="histList" style="padding:0 8px 4px"></div>
+  </div>
+</div>
+
+<footer><button class="reset" onclick="resetAll()">Reiniciar seguimiento</button></footer>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeExtra()">
+  <div class="modal">
+    <h3>Aporte extra</h3>
+    <p>Se aplicará a <b id="modalTarget">tu deuda más cara</b>, que es donde más ahorras en intereses.</p>
+    <div class="chips" id="chips">
+      <button class="chip" onclick="setChip(this,250)">250 €</button>
+      <button class="chip" onclick="setChip(this,500)">500 €</button>
+      <button class="chip" onclick="setChip(this,1000)">1.000 €</button>
+    </div>
+    <div class="big-in"><input type="text" inputmode="decimal" id="extraIn" placeholder="0" oninput="clearChips()"><span class="cur">€</span></div>
+    <div class="modal-acts">
+      <button class="cancel" onclick="closeExtra()">Cancelar</button>
+      <button class="confirm" onclick="confirmExtra()">Aplicar aporte</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEUDAS=[
+  {id:'eci', name:'El Corte Inglés',  ini:124.03, rate:'21 %',   accent:'#ff6b5e', icon:'bag',  flag:'Empieza aquí', cuota:124.03},
+  {id:'myc', name:'MyCard La Caixa',  ini:5200,   rate:'20,4 %', accent:'#ff5c8a', icon:'card', flag:'La más cara', cuota:122},
+  {id:'c16', name:'Crédito 1.600 €',  ini:1600,   rate:'12 %',   accent:'#ffb340', icon:'doc',  flag:'', cuota:122.20},
+  {id:'c161',name:'Crédito 16.100 €', ini:16100,  rate:'7 %',    accent:'#4a9eff', icon:'bank', flag:'', cuota:286},
+  {id:'bbva',name:'BBVA',             ini:4000,   rate:'5 %',    accent:'#a988ff', icon:'bank', flag:'', cuota:91},
+  {id:'pc',  name:'Ordenador (Aplázame)', ini:1358.59, rate:'cerrado', accent:'#8a94a6', icon:'laptop', flag:'', fija:true, cuota:67.93},
+];
+const TOTAL=DEUDAS.reduce((s,d)=>s+d.ini,0);
+const PLAN=[28382.62,27784.44,27096.36,26401.61,25700.08,24991.71,24276.38,23554.01,22824.5,22087.76,21343.69,20592.19,19833.15,19066.48,18292.08,17509.83,16718.86,15918.96,15215.01,14398.61,13577.99,12753.1,11923.54,11089.28,10250.28,9406.53,8557.99,7704.64,6846.45,5983.39,5115.44,4242.56,3364.73,2481.93,1594.11,1205.31,310.34,0.0];
+const KEY='deudas_ios_v5';
+let state=load(), open={}, chipVal=0;
+
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));return s&&typeof s==='object'?s:{}}catch(e){return{}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function st(id){if(!state[id])state[id]={done:false,saldo:null,note:''};return state[id]}
+function extras(){if(!state._extras)state._extras=[];return state._extras;}
+function extrasTotal(){return extras().reduce((a,e)=>a+e.amt,0);}
+const eur=n=>Math.round(n).toLocaleString('es-ES');
+const eur2=n=>n.toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:2});
+function cur(d){const s=st(d.id);if(s.done)return 0;return s.saldo!=null?s.saldo:d.ini;}
+function owed(){return DEUDAS.reduce((a,d)=>a+cur(d),0)}
+function paidSum(){return TOTAL-owed()}
+function nDone(){return DEUDAS.filter(d=>!d.fija&&st(d.id).done).length}
+function nextUnpaid(){return DEUDAS.find(d=>!d.fija&&!st(d.id).done)}
+function monthsSince(){const n=new Date();return Math.max(0,(n.getFullYear()-2026)*12+(n.getMonth()-6));}
+const ME=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function esc(t){return(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const ICONS={
+  bag:'<path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  card:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>',
+  doc:'<path d="M7 3h7l4 4v14H7V3Z"/><path d="M14 3v4h4"/><path d="M10 13h5M10 16h5"/>',
+  bank:'<path d="M4 10h16"/><path d="M4 10 12 4l8 6"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8"/><path d="M4 19h16"/>',
+  laptop:'<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 20h20"/>'
+};
+function svgIcon(k,color){return `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]||ICONS.doc}</svg>`;}
+
+function renderCards(){
+  const v=document.getElementById('viewD'),nx=nextUnpaid();
+  v.innerHTML=DEUDAS.map(d=>{
+    const s=st(d.id),done=s.done,isNext=nx&&nx.id===d.id&&!done;
+    const val=cur(d), prog=(d.ini-val)/d.ini;
+    let pill;
+    if(done) pill='<span class="pill ok">Saldada</span>';
+    else if(d.fija) pill='<span class="pill fija">Cuota fija</span>';
+    else if(isNext) pill='<span class="pill now">Ahora</span>';
+    else pill=d.flag?`<span class="pill hi">${d.flag}</span>`:'';
+    const sub=d.fija
+      ? `Interés cerrado · cuota ${eur2(d.cuota)} €/mes`
+      : `Interés ${d.rate} · inicial ${eur(d.ini)} €`;
+    return `<div class="dcard ${done?'done':''} ${d.fija?'fija':''}" style="--accent:${d.accent}">
+      <div class="dtop">
+        <div class="dicon">${svgIcon(d.icon,d.accent)}</div>
+        <div class="dmid">
+          <div class="dname">${d.name} ${pill}</div>
+          <div class="dsub">${sub}</div>
+        </div>
+        <div class="dval"><div class="v" id="v-${d.id}">${eur2(val)} €</div></div>
+      </div>
+      <div class="dbar"><i style="width:${Math.max(0,Math.min(1,prog))*100}%"></i></div>
+      <div class="dfoot">
+        <div class="dnote">${s.note?'“'+esc(s.note)+'”':'&nbsp;'}</div>
+        <div class="acts">
+          <button class="btn" onclick="toggleEd('${d.id}')">${open[d.id]?'Cerrar':'Editar'}</button>
+          ${done
+            ? `<button class="btn paid" onclick="toggle('${d.id}')">${d.fija?'Pagada ✓':'Saldada ✓'}</button>`
+            : `<button class="btn primary" onclick="pagarCuota('${d.id}')">Pagar cuota · ${eur2(d.cuota)} €</button>`}
+        </div>
+      </div>
+      <div class="editor ${open[d.id]?'open':''}" id="ed-${d.id}">
+        <div class="editor-in">
+          <div class="field"><span class="cap">Saldo actual</span>
+            <input type="text" inputmode="decimal" id="in-${d.id}" placeholder="${eur2(val)}" value="${!done&&s.saldo!=null?s.saldo:''}">
+            <span class="eur">€</span></div>
+          <div class="field"><span class="cap">Nota</span>
+            <textarea id="nt-${d.id}" placeholder="p. ej. pagué 200 € extra este mes">${esc(s.note||'')}</textarea></div>
+          <div class="ed-row">
+            <button class="btn" onclick="restore('${d.id}')">↺ Inicial</button>
+            <button class="btn primary" onclick="saveEd('${d.id}')">Guardar</button>
+          </div>
+          <button class="btn liquidar" onclick="toggle('${d.id}')">${done?'Reactivar deuda':'Marcar como saldada del todo'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderSummary(){
+  const owe=owed(),pct=paidSum()/TOTAL;
+  const o=document.getElementById('owe');o.textContent=eur2(owe);
+  document.getElementById('paid').textContent=eur2(paidSum())+' €';
+  document.getElementById('total').textContent=eur2(TOTAL)+' €';
+  document.getElementById('ndone').textContent=nDone();
+  document.getElementById('track').style.width=(pct*100)+'%';
+}
+function renderTime(){
+  const svg=document.getElementById('chartTime'),W=340,H=200,pl=6,pr=6,pt=8,pb=22;
+  const n=PLAN.length,x=i=>pl+(W-pl-pr)*(i/(n-1)),y=v=>pt+(H-pt-pb)*(v/TOTAL);
+  const planLine=PLAN.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const left=owed(),mi=Math.min(monthsSince(),n-1);
+  const realLine=`M${x(0)},${y(TOTAL).toFixed(1)} L${x(mi).toFixed(1)},${y(left).toFixed(1)}`;
+  const ticks=[0,6,12,18,24,30,n-1].map(i=>{const y2=2026+Math.floor((6+i)/12),m=(6+i)%12;
+    return `<text x="${x(i).toFixed(1)}" y="${H-6}" font-size="9" fill="rgba(244,244,247,.4)" text-anchor="middle" font-family="Inter" font-weight="500">${ME[m]} ${String(y2).slice(2)}</text>`;}).join('');
+  const gl=[0,.5,1].map(f=>`<line x1="${pl}" y1="${(pt+(H-pt-pb)*f).toFixed(1)}" x2="${W-pr}" y2="${(pt+(H-pt-pb)*f).toFixed(1)}" stroke="rgba(255,255,255,.06)"/>`).join('');
+  svg.innerHTML=`<defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#32d6a6" stop-opacity=".22"/><stop offset="1" stop-color="#32d6a6" stop-opacity="0"/></linearGradient></defs>
+    ${gl}
+    <path d="${realLine} L${x(mi).toFixed(1)},${(H-pb).toFixed(1)} L${x(0)},${(H-pb).toFixed(1)} Z" fill="url(#gt)"/>
+    <path d="${planLine}" fill="none" stroke="#4a9eff" stroke-width="1.8" stroke-dasharray="4 3" opacity=".8"/>
+    <path d="${realLine}" fill="none" stroke="#32d6a6" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="${x(mi).toFixed(1)}" cy="${y(left).toFixed(1)}" r="4.5" fill="#32d6a6"/>
+    <circle cx="${x(mi).toFixed(1)}" cy="${y(left).toFixed(1)}" r="8" fill="#32d6a6" opacity=".2"/>
+    ${ticks}`;
+}
+function renderStep(){
+  const svg=document.getElementById('chartStep'),W=340,H=160,pad=8,pb=8;
+  let run=TOTAL;const pts=[run];DEUDAS.forEach(d=>{run-=(d.ini-cur(d));pts.push(run);});
+  const n=pts.length,x=i=>pad+(W-2*pad)*(i/(n-1)),y=v=>pad+(H-pad-pb)*(v/TOTAL);
+  const line=pts.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const dots=pts.map((v,i)=>i?`<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.4" fill="#4a9eff"/>`:'').join('');
+  svg.innerHTML=`<defs><linearGradient id="gs" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#4a9eff" stop-opacity=".22"/><stop offset="1" stop-color="#4a9eff" stop-opacity="0"/></linearGradient></defs>
+    <line x1="${pad}" y1="${H-pb}" x2="${W-pad}" y2="${H-pb}" stroke="rgba(255,255,255,.12)"/>
+    <path d="${line} L${x(n-1).toFixed(1)},${(H-pb).toFixed(1)} L${x(0)},${(H-pb).toFixed(1)} Z" fill="url(#gs)"/>
+    <path d="${line}" fill="none" stroke="#4a9eff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>${dots}`;
+}
+function renderAll(){renderCards();renderSummary();renderTime();renderStep();renderExtraInfo();renderHist();}
+
+// ---- Aportes extra ----
+function openExtra(){
+  const nx=nextUnpaid();
+  document.getElementById('modalTarget').textContent=nx?nx.name:'tu deuda';
+  document.getElementById('extraIn').value='';chipVal=0;
+  document.querySelectorAll('#chips .chip').forEach(c=>c.classList.remove('on'));
+  document.getElementById('modalBg').classList.add('on');
+  setTimeout(()=>document.getElementById('extraIn').focus(),120);
+}
+function closeExtra(){document.getElementById('modalBg').classList.remove('on');}
+function setChip(el,v){chipVal=v;document.getElementById('extraIn').value=v.toLocaleString('es-ES');
+  document.querySelectorAll('#chips .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+function clearChips(){document.querySelectorAll('#chips .chip').forEach(c=>c.classList.remove('on'));}
+function confirmExtra(){
+  const raw=document.getElementById('extraIn').value.replace(/\./g,'').replace(',','.').trim();
+  const amt=parseFloat(raw);
+  if(isNaN(amt)||amt<=0){closeExtra();return;}
+  // aplicar a la deuda objetivo, arrastrando sobrante a las siguientes
+  let rest=amt;
+  for(const d of DEUDAS){
+    if(rest<=0)break;
+    if(d.fija)continue;
+    const s=st(d.id);if(s.done)continue;
+    const c=cur(d);
+    const pay=Math.min(c,rest);
+    const nuevo=c-pay;
+    if(nuevo<=0.01){s.done=true;s.saldo=0;}else{s.saldo=nuevo;}
+    rest-=pay;
+  }
+  extras().push({amt:amt,date:new Date().toISOString()});
+  save();closeExtra();renderAll();
+  if(navigator.vibrate)navigator.vibrate([10,30,10]);
+}
+function delExtra(i){
+  // al borrar un aporte, revertimos su efecto sumándolo de nuevo a la deuda objetivo actual
+  const e=extras()[i];if(!e)return;
+  if(confirm('¿Borrar este aporte de '+eur2(e.amt)+' €? Se volverá a sumar al saldo pendiente.')){
+    // devolver el importe a la primera deuda no saldada (aprox: se reañade al objetivo actual)
+    let back=e.amt;
+    for(const d of DEUDAS){
+      if(back<=0)break;if(d.fija)continue;const s=st(d.id);
+      const c=cur(d);const room=d.ini-c;
+      const add=Math.min(room,back);
+      if(add>0){s.done=false;s.saldo=c+add;back-=add;}
+    }
+    extras().splice(i,1);save();renderAll();
+  }
+}
+function renderExtraInfo(){
+  const t=extrasTotal(),n=extras().length;
+  const el=document.getElementById('extraInfo');
+  el.innerHTML=n?`Llevas <b>${eur2(t)} €</b> en ${n} aporte${n>1?'s':''} extra`:'Cada aporte va a tu deuda más cara y adelanta la meta';
+}
+function renderHist(){
+  const list=document.getElementById('histList'),plate=document.getElementById('histPlate');
+  const ex=extras();
+  if(!ex.length){plate.style.display='none';return;}
+  plate.style.display='block';
+  document.getElementById('histTotal').textContent=eur2(extrasTotal())+' € en total';
+  list.innerHTML=ex.map((e,i)=>{
+    const d=new Date(e.date).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'2-digit'});
+    return `<div class="hist-item"><span>${d}</span><span style="display:flex;align-items:center;gap:12px"><span class="amt">+${eur2(e.amt)} €</span><button class="del" onclick="delExtra(${i})">✕</button></span></div>`;
+  }).join('');
+}
+
+function pagarCuota(id){
+  const d=DEUDAS.find(x=>x.id===id), s=st(id);
+  if(s.done)return;
+  const c=cur(d);
+  const cuota=Math.min(d.cuota||0, c);
+  const nuevo=c-cuota;
+  if(nuevo<=0.01){s.done=true;s.saldo=0;}else{s.saldo=nuevo;}
+  save();renderAll();
+  const el=document.getElementById('v-'+id);if(el){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
+  if(navigator.vibrate)navigator.vibrate(s.done?[8,26,8]:12);
+}
+function toggle(id){const s=st(id);s.done=!s.done;if(s.done)s.saldo=0;else s.saldo=null;save();renderAll();
+  if(navigator.vibrate)navigator.vibrate(s.done?[8,26,8]:12);
+  if(s.done){const el=document.getElementById('v-'+id);if(el)el.classList.add('pop');}}
+function toggleEd(id){open[id]=!open[id];renderCards();
+  if(open[id])setTimeout(()=>{const i=document.getElementById('in-'+id);if(i)i.focus();},80);}
+function saveEd(id){const s=st(id);
+  const raw=document.getElementById('in-'+id).value.replace(/\./g,'').replace(',','.').trim();
+  s.note=document.getElementById('nt-'+id).value;
+  if(raw!==''){const v=parseFloat(raw);if(!isNaN(v)){s.saldo=Math.max(0,v);if(v<=0)s.done=true;}}
+  open[id]=false;save();renderAll();if(navigator.vibrate)navigator.vibrate(12);}
+function restore(id){st(id).saldo=null;const i=document.getElementById('in-'+id);if(i)i.value='';}
+function show(t){document.getElementById('viewD').style.display=t==='d'?'grid':'none';
+  document.getElementById('viewG').style.display=t==='g'?'block':'none';
+  document.getElementById('segD').classList.toggle('on',t==='d');
+  document.getElementById('segG').classList.toggle('on',t==='g');
+  if(t==='g'){renderTime();renderStep();}}
+function resetAll(){if(confirm('¿Borrar todo y empezar de cero?')){state={};open={};save();renderAll();}}
+
+const h=new Date().getHours();
+document.getElementById('greet').textContent=h<6?'Buenas noches':h<13?'Buenos días':h<21?'Buenas tardes':'Buenas noches';
+renderAll();
+</script>
+</body>
+</html>
