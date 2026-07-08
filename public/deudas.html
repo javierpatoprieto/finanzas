@@ -154,6 +154,14 @@
   .modal h3{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
   .modal p{font-size:13px;color:var(--txt-2);margin-bottom:18px;line-height:1.45}
   .modal p b{color:var(--txt)}
+  .modal .tcap{font-size:11px;color:var(--txt-3);font-weight:600;letter-spacing:.02em;margin-bottom:7px;display:block;text-transform:uppercase}
+  .modal select{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--stroke);border-radius:13px;
+    color:var(--txt);font-family:inherit;font-size:15px;font-weight:600;padding:13px 14px;outline:none;margin-bottom:16px;
+    -webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center}
+  .modal select:focus{border-color:var(--mint)}
+  .modal select option{background:#16161f;color:var(--txt)}
   .chips{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
   .chip{flex:1;min-width:70px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);color:var(--txt);
     font-family:inherit;font-weight:600;font-size:14px;padding:11px;border-radius:12px;cursor:pointer;transition:.2s}
@@ -230,7 +238,9 @@
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeExtra()">
   <div class="modal">
     <h3>Aporte extra</h3>
-    <p>Se aplicará a <b id="modalTarget">tu deuda más cara</b>, que es donde más ahorras en intereses.</p>
+    <p>Elige a qué deuda va. Si sobra, se aplica a la siguiente de la lista.</p>
+    <span class="tcap">¿A qué deuda?</span>
+    <select id="extraTarget"></select>
     <div class="chips" id="chips">
       <button class="chip" onclick="setChip(this,250)">250 €</button>
       <button class="chip" onclick="setChip(this,500)">500 €</button>
@@ -375,7 +385,13 @@ function renderAll(){renderCards();renderSummary();renderTime();renderStep();ren
 // ---- Aportes extra ----
 function openExtra(){
   const nx=nextUnpaid();
-  document.getElementById('modalTarget').textContent=nx?nx.name:'tu deuda';
+  const sel=document.getElementById('extraTarget');
+  const opts=DEUDAS.filter(d=>!d.fija&&!st(d.id).done).map(d=>{
+    const rec=nx&&nx.id===d.id?' · recomendada':'';
+    return `<option value="${d.id}">${d.name} — ${eur2(cur(d))} €${rec}</option>`;
+  }).join('');
+  sel.innerHTML=opts||'<option value="">No queda deuda por pagar</option>';
+  if(nx)sel.value=nx.id;
   document.getElementById('extraIn').value='';chipVal=0;
   document.querySelectorAll('#chips .chip').forEach(c=>c.classList.remove('on'));
   document.getElementById('modalBg').classList.add('on');
@@ -389,10 +405,14 @@ function confirmExtra(){
   const raw=document.getElementById('extraIn').value.replace(/\./g,'').replace(',','.').trim();
   const amt=parseFloat(raw);
   if(isNaN(amt)||amt<=0){closeExtra();return;}
-  // aplicar a la deuda objetivo, arrastrando sobrante a las siguientes
+  // empezar por la deuda elegida, arrastrando el sobrante a las siguientes
+  const targetId=document.getElementById('extraTarget').value;
+  let startIdx=DEUDAS.findIndex(d=>d.id===targetId);
+  if(startIdx<0)startIdx=0;
   let rest=amt;
-  for(const d of DEUDAS){
+  for(let i=startIdx;i<DEUDAS.length;i++){
     if(rest<=0)break;
+    const d=DEUDAS[i];
     if(d.fija)continue;
     const s=st(d.id);if(s.done)continue;
     const c=cur(d);
