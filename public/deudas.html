@@ -64,6 +64,7 @@
   .track > i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:linear-gradient(90deg,var(--mint),var(--blue));box-shadow:0 0 16px rgba(50,214,166,.5);width:0;transition:width .9s cubic-bezier(.16,.84,.28,1)}
   .track-meta{display:flex;justify-content:space-between;margin-top:9px;font-size:11.5px;color:var(--txt-3);font-weight:500}
   .track-meta b{color:var(--txt-2)}
+  .track-meta .pctpaid{color:var(--mint);font-weight:700}
 
   .seg{display:flex;gap:4px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);padding:4px;border-radius:15px;margin:20px 0 14px}
   .seg button{flex:1;border:0;background:transparent;color:var(--txt-2);font-family:inherit;font-size:13.5px;font-weight:600;padding:9px;border-radius:11px;transition:.25s;cursor:pointer}
@@ -202,7 +203,7 @@
   <div class="amount"><span id="owe">0</span><span class="c">€</span></div>
   <div class="sub">Pagado <b id="paid">0 €</b> de <span id="total">0 €</span></div>
   <div class="track"><i id="track"></i></div>
-  <div class="track-meta"><span><b id="ndone">0</b> de 5 saldadas</span><span>Meta · <b id="metaFecha">jul 2029</b></span></div>
+  <div class="track-meta"><span><b id="ndone">0</b> de 5 saldadas</span><span><b class="pctpaid" id="pctPaid">0 %</b> pagado · queda <b id="pctLeft">100 %</b></span></div>
   <button class="extra-btn" onclick="openExtra()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     Registrar aporte extra
@@ -348,6 +349,9 @@ function renderSummary(){
   document.getElementById('total').textContent=eur2(TOTAL)+' €';
   document.getElementById('ndone').textContent=nDone();
   document.getElementById('track').style.width=(pct*100)+'%';
+  const pctPaid=Math.round(pct*100), pctLeft=Math.round((1-pct)*100);
+  document.getElementById('pctPaid').textContent=pctPaid+' %';
+  document.getElementById('pctLeft').textContent=pctLeft+' %';
 }
 function renderTime(){
   const svg=document.getElementById('chartTime'),W=340,H=200,pl=6,pr=6,pt=8,pb=22;
